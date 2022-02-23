@@ -1,0 +1,6 @@
+REACT_APP_API_URL=http://api.emedicare.test/api
+REACT_APP_CUSTOMER_APP_URL=http://emedicare.test
+
+REACT_APP_HELP_SCOUT_KEY=8f137b8d-a6cc-4813-a4b9-abed7398e39a
+
+REACT_APP_GTM_ID=GTM-MP6QRW3
