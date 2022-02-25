@@ -25,6 +25,7 @@ class UserRegisterRequest extends FormRequest
      */
     public function rules()
     {
+        dd("abcd");
         return [
             'first_name' => 'required|max:50',
             'middle_name' => 'nullable|max:50|present',
