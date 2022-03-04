@@ -1011,7 +1011,6 @@ class UserController extends Controller
 
         $client = PasswordGrantClient::where('personal_access_client', 1)->first();
         $http = new \GuzzleHttp\Client;
-        try {
             $response = $http->request('POST', url('/') . '/oauth/token', [
                 'form_params' => [
                     'grant_type' => 'personal_access',
@@ -1021,9 +1020,6 @@ class UserController extends Controller
                     'scope' => '*',
                 ],
             ]);
-        }catch(\GuzzleHttp\Exception\RequestException $e){
-            if ($e->hasResponse()) {
-                $response = $e->getResponse();
                 $result = json_decode((string) $response->getBody(), true);
                 $result['refresh_token'] = NULL;
                 $result['first_name'] = $user->first_name;
@@ -1053,8 +1049,6 @@ class UserController extends Controller
                 }
                 $result['lab_pharma_name'] = $lab_pharma_name;
                 return response()->json($result, 200);
-            }
-        }
     }
 
     /**
