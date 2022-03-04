@@ -158,8 +158,6 @@ class AuthController extends Controller
     {
         $client = PasswordGrantClient::where('password_client', 1)->first();
         $http = new \GuzzleHttp\Client;
-
-        try {
             $response = $http->request('POST', url('/') . '/oauth/token', [
                 'form_params' => [
                     'grant_type' => 'password',
@@ -170,9 +168,6 @@ class AuthController extends Controller
                     'scope' => '*',
                 ],
             ]);
-        }catch(\GuzzleHttp\Exception\RequestException $e){
-            if ($e->hasResponse()) {
-                $response = $e->getResponse();
                 $result = json_decode((string) $response->getBody(), true);
                 $result['first_name'] = auth()->user()->first_name;
                 $result['middle_name'] = auth()->user()->middle_name;
@@ -205,8 +200,7 @@ class AuthController extends Controller
                     }
                 }
                 return response()->json($result, $this->successStatus);
-            }
-        }
+        
         
     }
 
