@@ -170,8 +170,6 @@ class AuthController extends Controller
                     'scope' => '*',
                 ],
             ]);
-    
-            
         }catch(\GuzzleHttp\Exception\RequestException $e){
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
