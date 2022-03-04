@@ -158,49 +158,58 @@ class AuthController extends Controller
     {
         $client = PasswordGrantClient::where('password_client', 1)->first();
         $http = new \GuzzleHttp\Client;
-        $response = $http->request('POST', url('/') . '/oauth/token', [
-            'form_params' => [
-                'grant_type' => 'password',
-                'client_id' => $client->id,
-                'client_secret' => $client->secret,
-                'username' => $loginData['username'],
-                'password' => $loginData['password'],
-                'scope' => '*',
-            ],
-        ]);
 
-        $result = json_decode((string) $response->getBody(), true);
-        $result['first_name'] = auth()->user()->first_name;
-        $result['middle_name'] = auth()->user()->middle_name;
-        $result['last_name'] = auth()->user()->last_name;
-        $result['email'] = auth()->user()->email;
-        $result['user_type'] = auth()->user()->user_type;
-        $result['first_login'] = auth()->user()->first_login;
-        $result['current_user_id'] = auth()->user()->id;
-        $result['is_active'] = auth()->user()->is_active;
-        $result['currency_code'] = auth()->user()->currency_code;
-        $photo =  auth()->user()->profile_photo;
-        $result['profile_photo'] = NULL;
-        $result['roles'] = auth()->user()->getRoleNames();
-
-        $lab_pharma_name = NULL;
-        if (auth()->user()->user_type == 'PHARMACIST') {
-            $lab_pharma_name = auth()->user()->pharmacy->pharmacy_name;
-        } else if (auth()->user()->user_type == 'LABORATORY') {
-            $lab_pharma_name = auth()->user()->laboratory->laboratory_name;
-        }
-        $result['lab_pharma_name'] = $lab_pharma_name;
-
-
-        if ($photo != NULL) {
-
-            $path = storage_path() . "/app/" . $photo;
-            if (file_exists($path)) {
-                $path = Storage::url($photo);
-                $result['profile_photo'] = asset($path);
+        try {
+            $response = $http->request('POST', url('/') . '/oauth/token', [
+                'form_params' => [
+                    'grant_type' => 'password',
+                    'client_id' => $client->id,
+                    'client_secret' => $client->secret,
+                    'username' => $loginData['username'],
+                    'password' => $loginData['password'],
+                    'scope' => '*',
+                ],
+            ]);
+    
+            
+        }catch(\GuzzleHttp\Exception\RequestException $e){
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $result = json_decode((string) $response->getBody(), true);
+                $result['first_name'] = auth()->user()->first_name;
+                $result['middle_name'] = auth()->user()->middle_name;
+                $result['last_name'] = auth()->user()->last_name;
+                $result['email'] = auth()->user()->email;
+                $result['user_type'] = auth()->user()->user_type;
+                $result['first_login'] = auth()->user()->first_login;
+                $result['current_user_id'] = auth()->user()->id;
+                $result['is_active'] = auth()->user()->is_active;
+                $result['currency_code'] = auth()->user()->currency_code;
+                $photo =  auth()->user()->profile_photo;
+                $result['profile_photo'] = NULL;
+                $result['roles'] = auth()->user()->getRoleNames();
+        
+                $lab_pharma_name = NULL;
+                if (auth()->user()->user_type == 'PHARMACIST') {
+                    $lab_pharma_name = auth()->user()->pharmacy->pharmacy_name;
+                } else if (auth()->user()->user_type == 'LABORATORY') {
+                    $lab_pharma_name = auth()->user()->laboratory->laboratory_name;
+                }
+                $result['lab_pharma_name'] = $lab_pharma_name;
+        
+        
+                if ($photo != NULL) {
+        
+                    $path = storage_path() . "/app/" . $photo;
+                    if (file_exists($path)) {
+                        $path = Storage::url($photo);
+                        $result['profile_photo'] = asset($path);
+                    }
+                }
+                return response()->json($result, $this->successStatus);
             }
         }
-        return response()->json($result, $this->successStatus);
+        
     }
 
     /**
