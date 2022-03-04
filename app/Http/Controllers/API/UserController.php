@@ -1022,35 +1022,38 @@ class UserController extends Controller
                 ],
             ]);
         }catch(\GuzzleHttp\Exception\RequestException $e){
-            $result = json_decode((string) $response->getBody(), true);
-            $result['refresh_token'] = NULL;
-            $result['first_name'] = $user->first_name;
-            $result['middle_name'] = $user->middle_name;
-            $result['last_name'] = $user->last_name;
-            $result['email'] = $user->email;
-            $result['user_type'] = $user->user_type;
-            $result['first_login'] = $user->first_login;
-            $result['current_user_id'] = $user->id;
-            $result['is_active'] = $user->is_active;
-            $result['roles'] = $user->getRoleNames();
-            $photo =  $user->profile_photo;
-            $result['profile_photo'] = NULL;
-            if ($photo != NULL) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $result = json_decode((string) $response->getBody(), true);
+                $result['refresh_token'] = NULL;
+                $result['first_name'] = $user->first_name;
+                $result['middle_name'] = $user->middle_name;
+                $result['last_name'] = $user->last_name;
+                $result['email'] = $user->email;
+                $result['user_type'] = $user->user_type;
+                $result['first_login'] = $user->first_login;
+                $result['current_user_id'] = $user->id;
+                $result['is_active'] = $user->is_active;
+                $result['roles'] = $user->getRoleNames();
+                $photo =  $user->profile_photo;
+                $result['profile_photo'] = NULL;
+                if ($photo != NULL) {
 
-                $path = storage_path() . "/app/" . $photo;
-                if (file_exists($path)) {
-                    $path = Storage::url($photo);
-                    $result['profile_photo'] = asset($path);
+                    $path = storage_path() . "/app/" . $photo;
+                    if (file_exists($path)) {
+                        $path = Storage::url($photo);
+                        $result['profile_photo'] = asset($path);
+                    }
                 }
+                $lab_pharma_name = NULL;
+                if ($user->user_type == 'PHARMACIST') {
+                    $lab_pharma_name = $user->pharmacy->pharmacy_name;
+                } else if ($user->user_type == 'LABORATORY') {
+                    $lab_pharma_name = $user->laboratory->laboratory_name;
+                }
+                $result['lab_pharma_name'] = $lab_pharma_name;
+                return response()->json($result, 200);
             }
-            $lab_pharma_name = NULL;
-            if ($user->user_type == 'PHARMACIST') {
-                $lab_pharma_name = $user->pharmacy->pharmacy_name;
-            } else if ($user->user_type == 'LABORATORY') {
-                $lab_pharma_name = $user->laboratory->laboratory_name;
-            }
-            $result['lab_pharma_name'] = $lab_pharma_name;
-            return response()->json($result, 200);
         }
     }
 
