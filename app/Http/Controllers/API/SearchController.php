@@ -964,4 +964,32 @@ class SearchController extends Controller
         }
         return new ErrorMessage('Time slots not found.', 404);
     }
+
+
+    public function doctorSearch(Request $request)
+    {
+        $validatedData = $request->validate([
+            'country' => 'required',
+            'state' => 'required',
+            'district' => 'required',
+            'keyword' => 'required'
+        ]);
+
+        $sortBy = 'id';
+        $orderBy = 'asc';
+        $list = DoctorPersonalInfo::with('user:id,first_name,last_name')->whereHas('user', function ($query) use($validatedData) {
+            $query->where(['is_active'=>'1'])->where(['first_name', 'like', '%' . $validatedData['keyword'] . '%'])->orWhere(['last_name', 'like', '%' . $validatedData['keyword'] . '%']);
+        })->whereHas('address', function ($query) use ($validatedData) {
+            $query->where('state' ,$validatedData['state'])->where('district' ,$validatedData['district'])->where('country' ,$validatedData['country'])->where('address_type', 'CLINIC');
+        })->whereHas('specialization', function (Builder $query) use ($validatedData) {
+                $query->where('name', 'like', '%' . $validatedData['keyword'] . '%');
+        });
+
+        $list = $list->with('specialization')->withCount('reviews')->orderBy($sortBy, $orderBy)->paginate(DoctorPersonalInfo::$page);
+
+        if ($list->count() > 0) {
+            return response()->json($list, 200);
+        }
+        return new ErrorMessage("We couldn't find doctors for you", 404);
+    }
 }

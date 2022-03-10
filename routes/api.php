@@ -35,6 +35,7 @@ Route::group(['prefix' => 'guest'], function () {
 
     Route::get('labtest', 'API\Admin\LabTestController@index');
     Route::get('search/labtest', 'API\Admin\LabTestController@search');
+    Route::post('search/doctorSearch', 'API\SearchController@doctorSearch');
 });
 # No auth required.
 Route::get('search/medicine', 'API\Admin\MedicineController@search');
