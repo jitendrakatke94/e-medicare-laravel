@@ -981,7 +981,7 @@ class SearchController extends Controller
             $query->where(['is_active'=>'1'])->where('first_name', 'like', '%' . $validatedData['keyword'] . '%')->orWhere('last_name', 'like', '%' . $validatedData['keyword'] . '%');
         })->whereHas('address', function ($query) use ($validatedData) {
             $query->where('state' ,$validatedData['state'])->where('district' ,$validatedData['district'])->where('country' ,$validatedData['country'])->where('address_type', 'CLINIC');
-        })->whereHas('specialization', function (Builder $query) use ($validatedData) {
+        })->orWhereHas('specialization', function (Builder $query) use ($validatedData) {
                 $query->where('name', 'like', '%' . $validatedData['keyword'] . '%');
         });
 
