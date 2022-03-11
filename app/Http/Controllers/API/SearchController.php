@@ -985,7 +985,7 @@ class SearchController extends Controller
                 $query->where('name', 'like', '%' . $validatedData['keyword'] . '%');
         });
 
-        $list = $list->with('specialization')->withCount('reviews')->orderBy($sortBy, $orderBy)->paginate(DoctorPersonalInfo::$page);
+        $list = $list->with(['specialization', 'address'])->withCount('reviews')->orderBy($sortBy, $orderBy)->paginate(DoctorPersonalInfo::$page);
 
         if ($list->count() > 0) {
             return response()->json($list, 200);
