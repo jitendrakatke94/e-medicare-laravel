@@ -10,6 +10,7 @@ use App\Model\DoctorPersonalInfo;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Model\AppVersions;
 
 class ServiceController extends Controller
 {
@@ -471,5 +472,10 @@ class ServiceController extends Controller
         $d = $earth_radius * $c;
 
         return $d;
+    }
+
+    public function getAppVersion() {
+        $app_version = AppVersions::where('is_force_update', 1)->orderBy('id', 'desc')->first();
+        return response()->json($app_version, 200);
     }
 }

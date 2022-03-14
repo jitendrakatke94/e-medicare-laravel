@@ -458,3 +458,5 @@ Route::group(['prefix' => 'oauth/healthassociate'], function () {
 Route::group(['prefix' => 'oauth/ecommerce'], function () {
     Route::post('register', 'API\UserController@registerEcommerce')->name('ecommerce.register');
 });
+ //# get current app version
+Route::get('appversion', 'API\ServiceController@getAppVersion');
