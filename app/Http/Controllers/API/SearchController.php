@@ -538,6 +538,7 @@ class SearchController extends Controller
             'education_training' => NULL,
             'awards_achievements' => NULL,
             'service' => NULL,
+            'qualification' => null
         );
         $doctor = DoctorPersonalInfo::where('user_id', $id)->first();
         if ($doctor) {
@@ -548,6 +549,8 @@ class SearchController extends Controller
                 'education_training' =>  $info['education_training'],
                 'awards_achievements' =>  $info['awards_achievements'],
                 'service' =>  $info['service'],
+                'qualification' => $info['qualification'],
+
             );
         }
 
