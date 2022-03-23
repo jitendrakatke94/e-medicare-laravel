@@ -995,4 +995,12 @@ class SearchController extends Controller
         }
         return new ErrorMessage("We couldn't find doctors for you", 404);
     }
+
+    public function topDoctorsAndOffersList() {
+        $doctors = DoctorPersonalInfo::with('user')->limit(5)->get();
+        if($doctors->count() > 0){
+            return response()->json($doctors, 200);
+        }
+        return new ErrorMessage("We couldn't find doctors for you", 404);
+    }
 }
