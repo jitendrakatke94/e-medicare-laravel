@@ -997,9 +997,15 @@ class SearchController extends Controller
     }
 
     public function topDoctorsAndOffersList() {
+        $data = array(
+            'top_doctors' =>[],
+            'recently_visited_doctors'=>[],
+            'offers_for_you'=>[]
+        );
         $doctors = DoctorPersonalInfo::with('user')->limit(5)->get();
         if($doctors->count() > 0){
-            return response()->json($doctors, 200);
+            $data['top_doctors'] =$doctors;
+            return response()->json($data, 200);
         }
         return new ErrorMessage("We couldn't find doctors for you", 404);
     }
