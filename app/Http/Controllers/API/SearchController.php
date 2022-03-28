@@ -15,7 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Str;
-
+use App\Model\Offers;
 
 
 class SearchController extends Controller
@@ -1003,10 +1003,16 @@ class SearchController extends Controller
             'offers_for_you'=>[]
         );
         $doctors = DoctorPersonalInfo::with('user')->limit(5)->get();
-        if($doctors->count() > 0){
-            $data['top_doctors'] =$doctors;
-            return response()->json($data, 200);
-        }
-        return new ErrorMessage("We couldn't find doctors for you", 404);
+        
+        $recently_visited_doctors = Appointments::with(['doctor', 'patient_details', 'timeslot', 'clinic_address'])
+                                    ->where('date', Carbon::now()->format('Y-m-d'))->where('is_cancelled', 0)->get();
+        
+        $offers = Offers::where('created_date', '<=', Carbon::now()->format('Y-m-d'))->where('expiry_date', '>=', Carbon::now()->format('Y-m-d'))->get();
+        
+        $data['top_doctors'] =$doctors;
+        $data['recently_visited_doctors'] = $recently_visited_doctors;
+        $data['offers_for_you'] = $offers;
+            
+        return response()->json($data, 200);
     }
 }
