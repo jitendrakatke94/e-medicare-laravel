@@ -19,6 +19,7 @@ class CreateOffersTable extends Migration
             $table->string('counpon_code');
             $table->string('discount_amount');
             $table->integer('maximum_order_count');
+            $table->string('offer_image');
             $table->date('created_date');
             $table->date('expiry_date');
             $table->timestamps();
