@@ -179,7 +179,7 @@ class AuthController extends Controller
                 $result['is_active'] = auth()->user()->is_active;
                 $result['currency_code'] = auth()->user()->currency_code;
                 $result['country_code'] = auth()->user()->country_code;
-                $result['mobile_number'] = auth()->user->mobile_number;
+                $result['mobile_number'] = auth()->user()->mobile_number;
                 $photo =  auth()->user()->profile_photo;
                 $result['profile_photo'] = NULL;
                 $result['roles'] = auth()->user()->getRoleNames();
