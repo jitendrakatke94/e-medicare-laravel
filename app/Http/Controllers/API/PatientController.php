@@ -1123,7 +1123,7 @@ class PatientController extends Controller
                 //$query->whereBetween('date', [$request->from_date, $request->from_date]);
             }
         });
-        dd($record);
+        dd($record->count());
         if ($request->filled('name')) {
 
             $record = $record->whereHas('doctor', function ($query) use ($validatedData) {
