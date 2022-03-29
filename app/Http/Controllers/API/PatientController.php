@@ -1107,7 +1107,6 @@ class PatientController extends Controller
         if ($request->filled('orderBy')) {
             $orderBy = $validatedData['orderBy'];
         }
-        var_dump(Appointments::where('id', 1529)->first());
         $record = Appointments::where('patient_id', auth()->user()->id)->with('doctor:id,first_name,middle_name,last_name,profile_photo')->with('clinic_address')->with('prescription')->where(function ($query) use ($filter, $request) {
             
             if (array_key_exists('upcoming', $filter) && $filter['upcoming'] == 1) {
@@ -1124,7 +1123,6 @@ class PatientController extends Controller
                 //$query->whereBetween('date', [$request->from_date, $request->from_date]);
             }
         });
-        dd($record->count());
         if ($request->filled('name')) {
 
             $record = $record->whereHas('doctor', function ($query) use ($validatedData) {
