@@ -1107,6 +1107,7 @@ class PatientController extends Controller
         if ($request->filled('orderBy')) {
             $orderBy = $validatedData['orderBy'];
         }
+        var_dump(auth()->user()->id);
         $record = Appointments::where('patient_id', auth()->user()->id)->with('doctor:id,first_name,middle_name,last_name,profile_photo')->with('clinic_address')->with('prescription')->where(function ($query) use ($filter, $request) {
             
             if (array_key_exists('upcoming', $filter) && $filter['upcoming'] == 1) {
