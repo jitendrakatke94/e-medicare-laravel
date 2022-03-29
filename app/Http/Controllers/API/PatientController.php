@@ -1112,6 +1112,7 @@ class PatientController extends Controller
             var_dump(array_key_exists('upcoming', $filter) && $filter['upcoming'] == 1);
             var_dump(array_key_exists('completed', $filter) && $filter['completed'] == 1);
             var_dump($request->filled('start_date'));
+            
             if (array_key_exists('upcoming', $filter) && $filter['upcoming'] == 1) {
                 $query->where('date', '>=', Carbon::now()->format('Y-m-d'));
                 //$query->where('is_completed', 0);
@@ -1138,7 +1139,7 @@ class PatientController extends Controller
         }
 
         $record = $record->orderBy($sortBy, $orderBy)->paginate(Appointments::$page);
-
+        dd($record);
         if ($record->count() > 0) {
             $record->makeHidden(['patient_details', 'patient_more_info', 'start_time', 'end_time',]);
 
