@@ -1108,10 +1108,6 @@ class PatientController extends Controller
             $orderBy = $validatedData['orderBy'];
         }
         $record = Appointments::where('patient_id', auth()->user()->id)->with('doctor:id,first_name,middle_name,last_name,profile_photo')->with('clinic_address')->with('prescription')->where(function ($query) use ($filter, $request) {
-            dump($record);
-            dump(array_key_exists('upcoming', $filter) && $filter['upcoming'] == 1);
-            dump(array_key_exists('completed', $filter) && $filter['completed'] == 1);
-            dump($request->filled('start_date'));
             
             if (array_key_exists('upcoming', $filter) && $filter['upcoming'] == 1) {
                 $query->where('date', '>=', Carbon::now()->format('Y-m-d'));
@@ -1127,7 +1123,10 @@ class PatientController extends Controller
                 //$query->whereBetween('date', [$request->from_date, $request->from_date]);
             }
         });
-
+        dump($record);
+            dump(array_key_exists('upcoming', $filter) && $filter['upcoming'] == 1);
+            dump(array_key_exists('completed', $filter) && $filter['completed'] == 1);
+            dump($request->filled('start_date'));
         if ($request->filled('name')) {
 
             $record = $record->whereHas('doctor', function ($query) use ($validatedData) {
@@ -1139,7 +1138,7 @@ class PatientController extends Controller
         }
 
         $record = $record->orderBy($sortBy, $orderBy)->paginate(Appointments::$page);
-        // dd($record);
+        dd($record);
         if ($record->count() > 0) {
             $record->makeHidden(['patient_details', 'patient_more_info', 'start_time', 'end_time',]);
 
