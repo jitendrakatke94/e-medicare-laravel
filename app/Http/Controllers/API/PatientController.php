@@ -1123,10 +1123,6 @@ class PatientController extends Controller
                 //$query->whereBetween('date', [$request->from_date, $request->from_date]);
             }
         });
-        dump($record);
-            dump(array_key_exists('upcoming', $filter) && $filter['upcoming'] == 1);
-            dump(array_key_exists('completed', $filter) && $filter['completed'] == 1);
-            dump($request->filled('start_date'));
         if ($request->filled('name')) {
 
             $record = $record->whereHas('doctor', function ($query) use ($validatedData) {
@@ -1138,7 +1134,6 @@ class PatientController extends Controller
         }
 
         $record = $record->orderBy($sortBy, $orderBy)->paginate(Appointments::$page);
-        dd($record);
         if ($record->count() > 0) {
             $record->makeHidden(['patient_details', 'patient_more_info', 'start_time', 'end_time',]);
 
