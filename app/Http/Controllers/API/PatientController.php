@@ -1084,6 +1084,7 @@ class PatientController extends Controller
      */
     public function listAppointments(Request $request)
     {
+        dd('avbd');
         $validatedData = $request->validate([
             'filter' => 'nullable|array',
             'filter.upcoming' => 'nullable|boolean',
@@ -1108,10 +1109,10 @@ class PatientController extends Controller
             $orderBy = $validatedData['orderBy'];
         }
         $record = Appointments::where('patient_id', auth()->user()->id)->with('doctor:id,first_name,middle_name,last_name,profile_photo')->with('clinic_address')->with('prescription')->where(function ($query) use ($filter, $request) {
-            var_dump($record);
-            var_dump(array_key_exists('upcoming', $filter) && $filter['upcoming'] == 1);
-            var_dump(array_key_exists('completed', $filter) && $filter['completed'] == 1);
-            var_dump($request->filled('start_date'));
+            // var_dump($record);
+            // var_dump(array_key_exists('upcoming', $filter) && $filter['upcoming'] == 1);
+            // var_dump(array_key_exists('completed', $filter) && $filter['completed'] == 1);
+            // var_dump($request->filled('start_date'));
             
             if (array_key_exists('upcoming', $filter) && $filter['upcoming'] == 1) {
                 $query->where('date', '>=', Carbon::now()->format('Y-m-d'));
@@ -1139,7 +1140,7 @@ class PatientController extends Controller
         }
 
         $record = $record->orderBy($sortBy, $orderBy)->paginate(Appointments::$page);
-        dd($record);
+        // dd($record);
         if ($record->count() > 0) {
             $record->makeHidden(['patient_details', 'patient_more_info', 'start_time', 'end_time',]);
 
