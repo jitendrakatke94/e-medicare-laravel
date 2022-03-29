@@ -1134,6 +1134,7 @@ class PatientController extends Controller
         }
 
         $record = $record->orderBy($sortBy, $orderBy)->paginate(Appointments::$page);
+        dd($record);
         if ($record->count() > 0) {
             $record->makeHidden(['patient_details', 'patient_more_info', 'start_time', 'end_time',]);
 
