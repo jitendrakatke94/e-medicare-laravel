@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Str;
 use App\Model\Offers;
-
+use Illuminate\Support\Facades\DB;
 
 class SearchController extends Controller
 {
@@ -1015,4 +1015,14 @@ class SearchController extends Controller
             
         return response()->json($data, 200);
     }
+
+    public function getTopLocations(Request $request)
+    {
+        $list = Address::select('*')->havingRaw('COUNT(state) > 5')->groupBy('state')->limit(5)->get();
+
+        if ($list->count() > 0) {
+            return response()->json($list, 200);
+        }
+    }
+
 }

@@ -1861,10 +1861,10 @@ class PatientController extends Controller
      */
     public function listPrescription()
     {
-        $list = Prescriptions::orWhereHas('appointment', function ($query) {
+        $list = Prescriptions::with('doctor')->with('appointment')->orWhereHas('appointment', function ($query) {
             $query->where('patient_id', auth()->user()->id);
             $query->where('is_completed', 1);
-        })->orWhere('user_id', auth()->user()->id)->with('doctor')->with('appointment')->orderBy('id', 'desc')->paginate(Prescriptions::$page);
+        })->orWhere('user_id', auth()->user()->id)->orderBy('id', 'desc')->paginate(Prescriptions::$page);
 
         if ($list->count() > 0) {
             $list->makeHidden('info');
