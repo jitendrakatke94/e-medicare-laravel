@@ -1018,10 +1018,14 @@ class SearchController extends Controller
 
     public function getTopLocations(Request $request)
     {
-        $list = Address::select('*')->havingRaw('COUNT(state) > 5')->groupBy('state')->limit(5)->get();
+        $data = array(
+            'data' =>[]
+        );
+        $addressList = Address::select('*')->havingRaw('COUNT(state) > 5')->groupBy('state')->limit(5)->get();
 
-        if ($list->count() > 0) {
-            return response()->json($list, 200);
+        if ($addressList->count() > 0) {
+            $data['data'] = $addressList;
+            return response()->json($data, 200);
         }
     }
 
