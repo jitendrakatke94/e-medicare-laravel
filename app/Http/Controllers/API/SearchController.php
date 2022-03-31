@@ -1004,7 +1004,7 @@ class SearchController extends Controller
         );
         $doctors = DoctorPersonalInfo::with('user')->limit(5)->get();
         
-        $recently_visited_doctors = Appointments::with(['doctor', 'patient_details', 'timeslot', 'clinic_address'])
+        $recently_visited_doctors = Appointments::with(['doctor', 'doctorinfo', 'patient_details', 'timeslot', 'clinic_address'])
                                     ->where('date', '>=', Carbon::now()->subDays(4)->format('Y-m-d'))->where('is_cancelled', 0)->get();
         
         $offers = Offers::where('created_date', '<=', Carbon::now()->format('Y-m-d'))->where('expiry_date', '>=', Carbon::now()->format('Y-m-d'))->get();
