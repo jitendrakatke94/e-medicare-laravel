@@ -151,4 +151,13 @@ class DoctorPersonalInfo extends Model
     {
         return Reviews::where('to_id', $this->user_id)->avg('rating');
     }
+
+    public function appointments()
+    {
+        return $this->hasMany('App\Model\Appointments', 'doctor_id', 'user_id');
+    }
+
+    public function favouriteDoctors() {
+        return $this->hasOne('App\Model\FavouriteDoctors', 'doctor_id', 'id');
+    }
 }
