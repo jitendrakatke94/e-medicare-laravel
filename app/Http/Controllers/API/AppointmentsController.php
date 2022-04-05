@@ -19,6 +19,7 @@ use App\Model\UserCommissions;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class AppointmentsController extends Controller
 {
@@ -680,7 +681,7 @@ class AppointmentsController extends Controller
         $record['total_fees'] = round(($total_fees + $total_commission), 2);
 
         //if payment not paid within 10 minutes delete this record
-        AppointmentPaymentJob::dispatch($appointment)->delay(now()->addMinutes(11));
+        AppointmentPaymentJob::dispatch($appointment)->delay(Carbon::now()->addMinutes(11));
         return response()->json($record, 200);
     }
 }
