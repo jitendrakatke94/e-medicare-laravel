@@ -1012,8 +1012,8 @@ class SearchController extends Controller
         //     ->orWhere(DB::raw("CONCAT(date,' ', end_time)"), '>=' , Carbon::now()->format('Y-m-d H:i:s'))->groupBy('doctor_personal_infos.id')->get();
 
         $recently_visited_doctors = DoctorPersonalInfo::whereHas('appointments', function($query) {
-            $query->where('date', '<=', Carbon::now()->subDays(4)->format('Y-m-d'))->where('is_cancelled', 0)
-                ->orWhere(DB::raw("CONCAT(date,' ', end_time)"), '<=' , Carbon::now()->format('Y-m-d H:i:s'));
+            $query->where('date', '>=', Carbon::now()->subDays(4)->format('Y-m-d'))->where('is_cancelled', 0)
+                ->orWhere(DB::raw("CONCAT(date,' ', end_time)"), '>=' , Carbon::now()->format('Y-m-d H:i:s'));
         })->with(['user', 'appointments', 'address'])->get();
         $offers = Offers::where('created_date', '<=', Carbon::now()->format('Y-m-d'))->where('expiry_date', '>=', Carbon::now()->format('Y-m-d'))->get();
 
