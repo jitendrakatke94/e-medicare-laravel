@@ -984,8 +984,6 @@ class SearchController extends Controller
             $query->where('state',$validatedData['state'])->where('district',$validatedData['district'])->where('country',$validatedData['country'])->where('address_type','CLINIC');
         })->whereHas('user', function ($query) use($validatedData) {
             $query->where('is_active', '1')->whereRaw("concat(first_name, ' ', last_name) like '%" .$validatedData['keyword']. "%' ");
-        })->orWhereHas('specialization', function (Builder $query) use ($validatedData) {
-            $query->where('name', 'like', '%' . $validatedData['keyword'] . '%');
         });
 
         $list = $list->withCount('reviews')->orderBy($sortBy, $orderBy)->paginate(DoctorPersonalInfo::$page);
