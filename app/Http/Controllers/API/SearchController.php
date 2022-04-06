@@ -1011,7 +1011,7 @@ class SearchController extends Controller
         //     ->where('date', '>', Carbon::now()->subDays(4)->format('Y-m-d'))->where('is_cancelled', 0)
         //     ->orWhere(DB::raw("CONCAT(date,' ', end_time)"), '>=' , Carbon::now()->format('Y-m-d H:i:s'))->groupBy('doctor_personal_infos.id')->get();
 
-        $recently_visited_doctors = DoctorPersonalInfo::with(['user', 'appointments', 'address'])->get();
+        $recently_visited_doctors = DoctorPersonalInfo::with(['user', 'address'])->get();
         $offers = Offers::where('created_date', '<=', Carbon::now()->format('Y-m-d'))->where('expiry_date', '>=', Carbon::now()->format('Y-m-d'))->get();
 
         $data['top_doctors'] =$doctors;
