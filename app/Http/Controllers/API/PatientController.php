@@ -1111,7 +1111,7 @@ class PatientController extends Controller
             
             if (array_key_exists('upcoming', $filter) && $filter['upcoming'] == 1) {
                 $query->where('date', '>', Carbon::now()->format('Y-m-d'))
-                ->orWhere(DB::raw("CONCAT(date,' ', start_time)"), '>' , Carbon::now()->format('Y-m-d H:i:s'));
+                ->orWhere(DB::raw("CONCAT(date,' ', start_time)"), '>=' , Carbon::now()->format('Y-m-d H:i:s'));
                 // where('date', '>=', Carbon::now()->format('Y-m-d'));
                 //$query->where('is_completed', 0);
             }
