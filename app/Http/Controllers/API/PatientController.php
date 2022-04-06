@@ -27,7 +27,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Razorpay\Api\Api;
-
+use Illuminate\Support\Facades\DB;
 
 class PatientController extends Controller
 {
