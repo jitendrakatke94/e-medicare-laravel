@@ -981,7 +981,7 @@ class SearchController extends Controller
         $sortBy = 'id';
         $orderBy = 'asc';
         $list = DB::select(
-            'CALL `usp_GetSearchResult`("'.$validatedData['keyword'].'", "'.$validatedData['state'].'", "'.$validatedData['country'].'", "'.$validatedData['district'].'", "1")'
+            'CALL `get_doctors_search`("'.$validatedData['keyword'].'", "'.$validatedData['state'].'", "'.$validatedData['country'].'", "'.$validatedData['district'].'", "1")'
          );
         $doctor_info = [];
         foreach($list as $object) {
