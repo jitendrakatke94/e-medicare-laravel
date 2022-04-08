@@ -1019,7 +1019,7 @@ class SearchController extends Controller
                         'name' => $object->name
                     ),
                 'address' => 
-                    array( 
+                    [array( 
                         'street_name' => $object->street_name,
                         'city_village' => $object->city_village,
                         'district' => $object->district,
@@ -1030,7 +1030,7 @@ class SearchController extends Controller
                         'contact_number' => $object->contact_number,
                         'clinic_name' => $object->clinic_name
                    
-                    ),
+                    )],
                 
             );
         };
