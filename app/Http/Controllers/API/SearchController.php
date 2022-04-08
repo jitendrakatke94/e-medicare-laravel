@@ -980,16 +980,64 @@ class SearchController extends Controller
 
         $sortBy = 'id';
         $orderBy = 'asc';
-        $list = DoctorPersonalInfo::with(['user:id,first_name,last_name', 'specialization', 'address', 'favouriteDoctors'])->whereHas('address', function ($query) use ($validatedData) {
-            $query->where('state',$validatedData['state'])->where('district',$validatedData['district'])->where('country',$validatedData['country'])->where('address_type','CLINIC');
-        })->whereHas('user', function ($query) use($validatedData) {
-            $query->where('is_active', '1')->whereRaw("concat(first_name, ' ', last_name) like '%" .$validatedData['keyword']. "%' ");
-        });
-
-        $list = $list->withCount('reviews')->orderBy($sortBy, $orderBy)->paginate(DoctorPersonalInfo::$page);
-
-        if ($list->count() > 0) {
-            return response()->json($list, 200);
+        $list = DB::select(
+            'CALL `usp_GetSearchResult`("'.$validatedData['keyword'].'", "'.$validatedData['state'].'", "'.$validatedData['country'].'", "'.$validatedData['district'].'", "1")'
+         );
+        $doctor_info = [];
+        foreach($list as $object) {
+            $doctor_info[] = array(
+                'id' => $object->id,
+                'user_id'=>$object->user_id,
+                'doctor_unique_id'=> $object->doctor_unique_id,
+                'title' => $object->title,
+                'gender' => $object->gender,
+                'date_of_birth' => $object->date_of_birth,
+                'age'=>$object->age,
+                'qualification' => $object->qualification,
+                'years_of_experience'=>$object->years_of_experience,
+                'alt_country_code'=>$object->alt_country_code,
+                'alt_mobile_number'=>$object->alt_mobile_number,
+                'clinic_name'=> $object->clinic_name,
+                'career_profile'=>$object->career_profile,
+                'education_training'=>$object->education_training,
+                'experience'=>$object->experience,
+                'is_feature'=>$object->is_feature,
+                'appointment_type_online'=>$object->appointment_type_online,
+                'appointment_type_offline'=>$object->appointment_type_offline,
+                'consulting_online_fee'=>$object->consulting_online_fee,
+                'consulting_offline_fee'=>$object->consulting_offline_fee,
+                'user' => 
+                    array( 
+                        'id' => $object->user_id,
+                        'first_name' => $object->first_name,
+                        'middle_name' => $object->middle_name,
+                        'last_name' => $object->last_name
+                   
+                    ),
+                'specilization' => 
+                    array( 
+                        'name' => $object->name
+                    ),
+                'address' => 
+                    array( 
+                        'street_name' => $object->street_name,
+                        'city_village' => $object->city_village,
+                        'district' => $object->district,
+                        'state' => $object->state,
+                        'country' => $object->country,
+                        'pincode' => $object->pincode,
+                        'country_code' => $object->country_code,
+                        'contact_number' => $object->contact_number,
+                        'clinic_name' => $object->clinic_name
+                   
+                    ),
+                
+            );
+        };
+        
+        if(count($doctor_info) > 0 ){
+            $doctor_info = array('data'=>$doctor_info);
+            return response()->json($doctor_info, 200);
         }
         return new ErrorMessage("We couldn't find doctors for you", 404);
     }
@@ -1000,16 +1048,32 @@ class SearchController extends Controller
             'recently_visited_doctors'=>[],
             'offers_for_you'=>[]
         );
-        $doctors = DoctorPersonalInfo::with(['user', 'address'])->limit(5)->get();
+        $doctors = DoctorPersonalInfo::with(['user', 'address'])->where('is_feature', 1)->limit(5)->get();
         
+        $carbonDate = Carbon::now()->format('Y-m-d');
+        $carbonDateTime = Carbon::now()->format('Y-m-d H:i:s');
+        $recently_visited_doctors = DoctorPersonalInfo::with(['user', 'address'])->get();
+        // ->whereHas('appointments', function($query) use ($carbonDate, $carbonDateTime) {
+        //     // $query->where(function ($que) {
+        //     //     $que->where('date', '<', Carbon::now()->format('Y-m-d'))
+        //     //     ->orWhere(DB::raw("CONCAT(date,' ', start_time)"), '<=' , Carbon::now()->format('Y-m-d H:i:s'));
+        //         $query->where('is_cancelled', 0);
+        //         // ->orWhere(DB::raw("CONCAT(date,' ', end_time)"), '<=' , $carbonDateTime);
+            
+        //     // $query->whereNotNull('date')->whereNotNull('end_time')->whereNotNull('is_cancelled')
+        //     // ->where('date', '<', Carbon::now()->subDays(4)->format('Y-m-d'))->where('is_cancelled', 0)
+        //     // ->orWhere(DB::raw("CONCAT(date,' ', end_time)"), '<=' , Carbon::now()->format('Y-m-d H:i:s'));
+        // })
+        // ->get();
+
         // $recently_visited_doctors = DB::table('doctor_personal_infos')
         //     ->leftjoin('users', 'users.id', '=', 'doctor_personal_infos.user_id')
         //     ->leftjoin('addresses', 'addresses.user_id', '=', 'doctor_personal_infos.user_id')
         //     ->leftjoin('appointments', 'appointments.doctor_id', '=', 'doctor_personal_infos.user_id')
-        //     ->where('date', '>', Carbon::now()->subDays(4)->format('Y-m-d'))->where('is_cancelled', 0)
-        //     ->orWhere(DB::raw("CONCAT(date,' ', end_time)"), '>=' , Carbon::now()->format('Y-m-d H:i:s'))->groupBy('doctor_personal_infos.id')->get();
+        //     ->where('date', '<', Carbon::now()->subDays(4)->format('Y-m-d'))->where('is_cancelled', 0)
+        //     ->orWhere(DB::raw("CONCAT(date,' ', end_time)"), '<=' , Carbon::now()->format('Y-m-d H:i:s'))->groupBy('doctor_personal_infos.id')->get();
 
-        $recently_visited_doctors = DoctorPersonalInfo::with(['user', 'address'])->get();
+        // $recently_visited_doctors = DoctorPersonalInfo::with(['user', 'address'])->get();
         $offers = Offers::where('created_date', '<=', Carbon::now()->format('Y-m-d'))->where('expiry_date', '>=', Carbon::now()->format('Y-m-d'))->get();
 
         $data['top_doctors'] =$doctors;

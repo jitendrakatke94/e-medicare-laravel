@@ -154,7 +154,7 @@ class DoctorPersonalInfo extends Model
 
     public function appointments()
     {
-        return $this->hasMany('App\Model\Appointments', 'doctor_id', 'user_id');
+        return $this->hasMany('App\Model\Appointments', 'doctor_id', 'user_id')->withTrashed();
     }
 
     public function favouriteDoctors() {
