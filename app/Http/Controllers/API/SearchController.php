@@ -1029,9 +1029,11 @@ class SearchController extends Controller
                         'country_code' => $object->country_code,
                         'contact_number' => $object->contact_number,
                         'clinic_name' => $object->clinic_name
-                   
                     )],
-                
+                    'favourite_doctors' => [array(
+                        'user_id'=>$object->Uid,
+                        'doctor_id'=> $object->Did
+                    )]
             );
         };
         
