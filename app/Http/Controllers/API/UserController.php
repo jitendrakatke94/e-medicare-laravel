@@ -255,9 +255,10 @@ class UserController extends Controller
                 $otp_email = $this->initiateOTP($user, 'EMAILOTP');
 
                 $message = str_replace('$$$OTPEMAIL$$$', $otp_email, config('emailtext.otp_message'));
-                SendEmailJob::dispatch(['subject' => config('emailtext.otp_subject'), 'user_name' => $user->first_name . ' ' . $user->last_name, 'email' => $user->email, 'mail_type' => 'otpverification', 'message' => $message]);
+                $result = SendEmailJob::dispatch(['subject' => config('emailtext.otp_subject'), 'user_name' => $user->first_name . ' ' . $user->last_name, 'email' => $user->email, 'mail_type' => 'otpverification', 'message' => $message]);
+                // if($result)
 
-                return new SuccessMessage("Email OTP sent successfully", 200);
+                return new SuccessMessage("Email OTP sent successfully" .$result, 200);
             } catch (\Exception $e) {
                 return new ErrorMessage("OTP resend failed", 422);
             }
