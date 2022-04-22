@@ -553,7 +553,7 @@ class SearchController extends Controller
                 'awards_achievements' =>  $info['awards_achievements'],
                 'service' =>  $info['service'],
                 'qualification' => $info['qualification'],
-                'educations'=>$info['educations'],
+                'educations'=> json_encode($info['educations']),
                 'description'=>$info['description'],
                 'area_of_expertise'=>$info['area_of_expertise']
             );
