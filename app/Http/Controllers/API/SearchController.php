@@ -539,8 +539,7 @@ class SearchController extends Controller
             'awards_achievements' => NULL,
             'service' => NULL,
             'qualification' => null,
-            'collage_name'=> null,
-            'year_of_passing'=>null,
+            'educations'=> null,
             'description'=>null,
             'area_of_expertise'=>null
         );
@@ -554,8 +553,7 @@ class SearchController extends Controller
                 'awards_achievements' =>  $info['awards_achievements'],
                 'service' =>  $info['service'],
                 'qualification' => $info['qualification'],
-                'collage_name'=>$info['collage_name'],
-                'year_of_passing'=>$info['year_of_passing'],
+                'educations'=>$info['educations'],
                 'description'=>$info['description'],
                 'area_of_expertise'=>$info['area_of_expertise']
             );
