@@ -14,7 +14,7 @@ class AddAndRemoveColomnInDoctorPersonalInfos extends Migration
     public function up()
     {
         Schema::table('doctor_personal_infos', function (Blueprint $table) {
-            $table->json('educations');
+            $table->json('educations')->nullable()->after('qualification');
             $table->dropColumn(['collage_name', 'year_of_passing']);
         });
     }
