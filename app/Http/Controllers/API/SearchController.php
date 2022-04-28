@@ -799,7 +799,7 @@ class SearchController extends Controller
             $grouped = $list->groupBy('shift');
             return response()->json($grouped, 200);
         }
-        return new ErrorMessage('Time slots not found', 404);
+        // return new ErrorMessage('Time slots not found', 404);
     }
 
     /**
