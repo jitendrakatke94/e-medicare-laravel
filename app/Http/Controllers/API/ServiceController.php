@@ -251,6 +251,7 @@ class ServiceController extends Controller
         ]);
 
         $apikey = config('app.google')['maps_key'];
+        dd($apikey);
         $addressresponse = json_decode(file_get_contents(
             'https://maps.googleapis.com/maps/api/geocode/json?latlng=' .
                 urlencode(implode(",", [
