@@ -43,6 +43,7 @@ Route::group(['prefix' => 'guest'], function () {
 # No auth required.
 Route::get('search/medicine', 'API\Admin\MedicineController@search');
 Route::get('medicine/{id}', 'API\Admin\MedicineController@getMedicineById');
+Route::get('getLabtest/{id}', 'API\Admin\LabTestController@show');
 
 # cart
 Route::get('cart/{id}', 'API\CartController@getCartById');
