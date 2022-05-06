@@ -249,6 +249,15 @@ class ServiceController extends Controller
         $data = $request->validate([
             'latitude' => ['required', 'regex:/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/'],        'longitude' => ['required', 'regex:/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/']
         ]);
+        //facing google map issue so thats why we are return this null values and after we are deploy this project on live server then we have to remove this code
+        $geoResult = [];
+        $geoResult['country'] = NULL;
+        $geoResult['state'] = NULL;
+        $geoResult['city'] = NULL;
+        $geoResult['postal_code'] = NULL;
+        $geoResult['route'] = NULL;
+
+        return response()->json($geoResult, 200);
 
         $apikey = config('app.google')['maps_key'];
         $addressresponse = json_decode(file_get_contents(
