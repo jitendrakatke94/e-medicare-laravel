@@ -14,9 +14,9 @@ class AddColumnsInLabTestsTable extends Migration
     public function up()
     {
         Schema::table('lab_tests', function (Blueprint $table) {
-            $table->string('short_disc')->after('code');
+            $table->text('short_disc')->after('code')->nullable();
             $table->boolean('rx_required')->default(0)->after('short_disc');
-            $table->string('manufacturer')->after('rx_required');
+            $table->string('manufacturer')->after('rx_required')->nullable();
         });
     }
 
