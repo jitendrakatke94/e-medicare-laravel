@@ -1016,8 +1016,8 @@ class SearchController extends Controller
                         'id' => $object->user_id,
                         'first_name' => $object->first_name,
                         'middle_name' => $object->middle_name,
-                        'last_name' => $object->last_name
-                   
+                        'last_name' => $object->last_name,
+                        'profile_photo' => $object->profile_photo
                     ),
                 'specilization' => 
                     array( 
