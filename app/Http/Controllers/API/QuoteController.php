@@ -2421,7 +2421,6 @@ class QuoteController extends Controller
                     $commission = $list->commission;
                 }
             }
-            dd($datas);
             foreach ($datas as $key => $data) {
 
                 $list_total = $delivery_charge = $discount = $sub_total = 0;
@@ -2432,9 +2431,9 @@ class QuoteController extends Controller
                     $discount = $data['test']['discount'];
                     $list_total = ($list_total - $delivery_charge) + $discount;
                 } else {
-                    $list_total = $sub_total = $data['medicine']['total'];
-                    $delivery_charge = $data['medicine']['delivery_charge'];
-                    $discount = $data['medicine']['discount'];
+                    $list_total = $sub_total = $data['medicine']['total'] ? $data['medicine']['total'] : 0;
+                    $delivery_charge = $data['medicine']['delivery_charge'] ? $data['medicine']['delivery_charge'] : 0;
+                    $discount = $data['medicine']['discount'] ? $data['medicine']['discount'] : 0;
                     $list_total = ($list_total - $delivery_charge) + $discount;
                 }
                 $total_commission = ($list_total * $commission) / 100;
