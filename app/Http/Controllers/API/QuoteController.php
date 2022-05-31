@@ -2431,9 +2431,9 @@ class QuoteController extends Controller
                     $discount = $data['test']['discount'];
                     $list_total = ($list_total - $delivery_charge) + $discount;
                 } else {
-                    $list_total = $sub_total = $data['medicine']['total'] ? $data['medicine']['total'] : 0;
-                    $delivery_charge = $data['medicine']['delivery_charge'] ? $data['medicine']['delivery_charge'] : 0;
-                    $discount = $data['medicine']['discount'] ? $data['medicine']['discount'] : 0;
+                    $list_total = $sub_total = $data['medicine'] && $data['medicine']['total'] ? $data['medicine']['total'] : 0;
+                    $delivery_charge = $data['medicine'] && $data['medicine']['delivery_charge'] ? $data['medicine']['delivery_charge'] : 0;
+                    $discount = $data['medicine'] && $data['medicine']['discount'] ? $data['medicine']['discount'] : 0;
                     $list_total = ($list_total - $delivery_charge) + $discount;
                 }
                 $total_commission = ($list_total * $commission) / 100;
