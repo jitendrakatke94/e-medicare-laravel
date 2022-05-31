@@ -2421,7 +2421,7 @@ class QuoteController extends Controller
                     $commission = $list->commission;
                 }
             }
-
+            dd($datas);
             foreach ($datas as $key => $data) {
 
                 $list_total = $delivery_charge = $discount = $sub_total = 0;
