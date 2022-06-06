@@ -164,7 +164,7 @@ class DoctorService
         if ($request->file('profile_photo')) {
             $fileExtension = $request->profile_photo->extension();
             $uuid = Str::uuid()->toString();
-            $folder = 'public/uploads/' . $id;
+            $folder = 'public/storage/uploads/' . $id;
             $filePath = $request->file('profile_photo')->storeAs($folder, time() . '-' . $uuid . '.' . $fileExtension);
             User::where('id', $id)->update(['profile_photo' => $filePath]);
         }
