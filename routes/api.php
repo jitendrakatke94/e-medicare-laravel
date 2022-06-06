@@ -365,7 +365,7 @@ Route::group(['prefix' => 'patient', 'middleware' => ['role:patient', 'auth:api'
     Route::get('orders', 'API\OrderController@patientGetOrderList');
     Route::get('orders/{id}', 'API\OrderController@patientGetOrderById');
     Route::get('abcd', function(){
-        return Appointments::where('patient_id', auth()->user()->id)->first();
+        return App\Model\Appointments::where('patient_id', auth()->user()->id)->first();
     });
 });
 
