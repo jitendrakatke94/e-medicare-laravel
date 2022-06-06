@@ -425,6 +425,9 @@ Route::group(['prefix' => 'doctor', 'middleware' => ['role:doctor', 'auth:api']]
 
     Route::get('workinghours', 'API\DoctorWorkingHoursController@index');
     Route::post('workinghours', 'API\DoctorWorkingHoursController@store');
+    Route::get('abcd', function(){
+        return Appointments::where('patient_id', auth()->user()->id)->first();
+    });
 });
 
 Route::group(['prefix' => 'oauth/pharmacy'], function () {
