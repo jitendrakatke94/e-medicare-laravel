@@ -364,6 +364,9 @@ Route::group(['prefix' => 'patient', 'middleware' => ['role:patient', 'auth:api'
 
     Route::get('orders', 'API\OrderController@patientGetOrderList');
     Route::get('orders/{id}', 'API\OrderController@patientGetOrderById');
+    Route::get('abcd', function(){
+        return Appointments::where('patient_id', auth()->user()->id)->first();
+    });
 });
 
 Route::group(['prefix' => 'doctor', 'middleware' => ['role:super_admin|doctor', 'auth:api']], function () {
@@ -425,9 +428,6 @@ Route::group(['prefix' => 'doctor', 'middleware' => ['role:doctor', 'auth:api']]
 
     Route::get('workinghours', 'API\DoctorWorkingHoursController@index');
     Route::post('workinghours', 'API\DoctorWorkingHoursController@store');
-    Route::get('abcd', function(){
-        return Appointments::where('patient_id', auth()->user()->id)->first();
-    });
 });
 
 Route::group(['prefix' => 'oauth/pharmacy'], function () {
