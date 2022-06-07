@@ -158,7 +158,7 @@ class AuthController extends Controller
     {
         $client = PasswordGrantClient::where('password_client', 1)->first();
         $http = new \GuzzleHttp\Client;
-            $response = $http->request('POST', url('/') . '/oauth/token', [
+            $response = $http->timeout(3)->request('POST', url('/') . '/oauth/token', [
                 'form_params' => [
                     'grant_type' => 'password',
                     'client_id' => $client->id,
