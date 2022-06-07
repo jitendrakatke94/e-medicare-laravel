@@ -1017,7 +1017,7 @@ class SearchController extends Controller
                         'first_name' => $object->first_name,
                         'middle_name' => $object->middle_name,
                         'last_name' => $object->last_name,
-                        'profile_photo' => $object->profile_photo
+                        'profile_photo' => null
                     ),
                 'specilization' => 
                     array( 
@@ -1040,6 +1040,14 @@ class SearchController extends Controller
                         'doctor_id'=> $object->Did
                     )]
             );
+            if ($object->profile_photo != NULL) {
+        
+                $path = storage_path() . "/app/" . $object->profile_photo;
+                if (file_exists($path)) {
+                    $path = Storage::url($object->profile_photo);
+                    $doctor_info['user']['profile_photo'] = asset($path);
+                }
+            }
         };
         
         if(count($doctor_info) > 0 ){
