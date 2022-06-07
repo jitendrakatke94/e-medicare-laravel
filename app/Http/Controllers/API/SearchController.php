@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Str;
 use App\Model\Offers;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class SearchController extends Controller
 {
