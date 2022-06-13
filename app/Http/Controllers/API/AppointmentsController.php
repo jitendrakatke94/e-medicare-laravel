@@ -684,7 +684,7 @@ class AppointmentsController extends Controller
         //for mobile Alert message
         $otp_mobile = 123456;
         $mobile_number = $record['doctor']['country_code'] . $record['doctor']['mobile_number'];
-        $message = "Welcome to EMedicare, Indian's health passport. Your verification OTP for account registration is " . $otp_mobile . ".";
+        $message = "Welcome to EMedicare, Indian's health passport. Your verification OTP for account registration is.";
         $abc = $this->send($mobile_number, $message);
         // $record['abcd2'] = $mobile_number;
         // $record['abcd'] = $abc;
