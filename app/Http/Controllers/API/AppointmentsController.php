@@ -685,6 +685,7 @@ class AppointmentsController extends Controller
         $mobile_number = $record['doctor']['country_code'] . $record['doctor']['mobile_number'];
         $message = "Welcome to EMedicare, Indian's health passport. Your verification OTP for account registration is ";
         $abc = $this->send($mobile_number, $message);
+        $record['abcd2'] = $mobile_number;
         $record['abcd'] = $abc;
         //for Email Alert message
         Mail::to($record['doctor']['email'])->send(new AppointmentConfirmationToDoctor($record['doctor']));
