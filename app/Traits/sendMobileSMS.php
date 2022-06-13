@@ -12,7 +12,7 @@ trait sendMobileSMS
         // Message details
         $numbers = array($mobile_number);
         $sender = urlencode($sender_id);
-        $message = urlencode($message);
+        // $message = urlencode($message);
 
         $numbers = implode(',', $numbers);
 
