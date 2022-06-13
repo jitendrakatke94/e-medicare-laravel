@@ -683,7 +683,7 @@ class AppointmentsController extends Controller
         $record['total_fees'] = round(($total_fees + $total_commission), 2);
         //for mobile Alert message
         $mobile_number = $record['doctor']['country_code'] . $record['doctor']['mobile_number'];
-        $message = "Test sms";
+        $message = "Welcome to EMedicare, Indian's health passport. Your verification OTP for account registration is ";
         $abc = $this->send($mobile_number, $message);
         $record['abcd'] = $abc;
         //for Email Alert message
