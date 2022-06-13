@@ -681,10 +681,12 @@ class AppointmentsController extends Controller
         $record['total_commission'] = round($total_commission, 2);
         $record['total_tax'] = round($total_tax, 2);
         $record['total_fees'] = round(($total_fees + $total_commission), 2);
+        //for mobile Alert message
         $mobile_number = $record['doctor']['country_code'] . $record['doctor']['mobile_number'];
         $message = "Test sms";
-        $this->send($mobile_number, $message);
-        
+        $abc = $this->send($mobile_number, $message);
+        $record['abcd'] = $abc;
+        //for Email Alert message
         Mail::to($record['doctor']['email'])->send(new AppointmentConfirmationToDoctor($record['doctor']));
         //if payment not paid within 10 minutes delete this record
         AppointmentPaymentJob::dispatch($appointment)->delay(now()->addMinutes(11));
