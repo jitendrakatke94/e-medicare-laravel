@@ -21,10 +21,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Mail\AppointmentConfirmationToDoctor;
 use Mail;
+use App\Traits\sendMobileOTPTrait;
 
 class AppointmentsController extends Controller
 {
-
+    use sendMobileOTPTrait;
     /**
      * @group Appointments
      *
