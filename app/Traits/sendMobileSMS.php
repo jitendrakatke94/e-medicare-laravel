@@ -12,7 +12,7 @@ trait sendMobileSMS
         // Message details
         $numbers = array($mobile_number);
         $sender = urlencode($sender_id);
-        $message = encode($message);
+        $message = base64_decode($message);
 
         $numbers = implode(',', $numbers);
 
