@@ -111,7 +111,8 @@ class AuthController extends Controller
             // check if admin has suspended the account
             return new ErrorMessage('Waiting for Admin to approve your account.', 403);
         } elseif (auth()->user()->is_active == 2) {
-            return new ErrorMessage('Admin has suspended your account.', 403);
+            // return new ErrorMessage('Admin has suspended your account.', 403);
+            return new ErrorMessage('Your account has been deactivated. Please contact support.', 403);
         }
 
         $messageBag = new MessageBag();
