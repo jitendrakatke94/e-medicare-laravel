@@ -1,9 +1,13 @@
 @component('mail::message')
 
-# Hi {{ $doctor['username'] }},
-
 @component('mail::panel')
-Patient appointment is confirmed on date dd/mm/yyyy.
+    Appointment Confirmed
+    Hai Dr {{$record['doctor']['first_name']}}, New appointment confirmed for the following details.
+    Patient Name: {{$record['current_patient_info']['user']['first_name']['last_name']}}
+    Bookingid: {{$record['appointment_unique_id']}}
+    type: {{$record['consultation_type']}}
+    Date: {{$record['booking_date']}} {{$record['time']}} 
+    Place: {{$record['clinic_address']['clinic_name']}} {{$record['clinic_address']['street_name']}} {{$record['clinic_address']['city_village']}} {{$record['clinic_address']['state']}}.
 
 @endcomponent
 

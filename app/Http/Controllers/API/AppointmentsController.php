@@ -682,12 +682,17 @@ class AppointmentsController extends Controller
         $record['total_tax'] = round($total_tax, 2);
         $record['total_fees'] = round(($total_fees + $total_commission), 2);
         //for mobile Alert message
-        $otp_mobile = 123456;
         $mobile_number = $record['doctor']['country_code'] . $record['doctor']['mobile_number'];
-        $message = "Welcome to EMedicare, Indian's health passport. Your verification OTP for account registration is.";
+        $message = "Appointment Confirmed
+        Hai Dr". $record['doctor']['first_name']. ",New appointment confirmed for the following details.
+        Patient Name:". $record['current_patient_info']['user']['first_name']['last_name'] .
+        "Bookingid:". $record['appointment_unique_id'] .
+        "type:". $record['consultation_type'] .
+        "Date:" . $record['booking_date'] + $record['time'] . 
+        "Place:" . $record['clinic_address']['clinic_name'] + $record['clinic_address']['street_name'] + $record['clinic_address']['city_village'] + $record['clinic_address']['state'] . ".";
         $abc = $this->send($mobile_number, $message);
         //for Email Alert message
-        Mail::to($record['doctor']['email'])->send(new AppointmentConfirmationToDoctor($record['doctor']));
+        Mail::to($record['doctor']['email'])->send(new AppointmentConfirmationToDoctor($record));
         //if payment not paid within 10 minutes delete this record
         AppointmentPaymentJob::dispatch($appointment)->delay(now()->addMinutes(11));
         return response()->json($record, 200);

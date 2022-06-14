@@ -10,15 +10,15 @@ use Illuminate\Queue\SerializesModels;
 class AppointmentConfirmationToDoctor extends Mailable
 {
     use Queueable, SerializesModels;
-    public $doctor;
+    public $record;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($doctor)
+    public function __construct($record)
     {
-        $this->doctor = $doctor;
+        $this->record = $record;
     }
 
     /**
