@@ -21,11 +21,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Mail\AppointmentConfirmationToDoctor;
 use Mail;
-use App\Traits\sendMobileOTPTrait;
+use App\Traits\sendMobileSms;
 
 class AppointmentsController extends Controller
 {
-    use sendMobileOTPTrait;
+    use sendMobileSms;
     /**
      * @group Appointments
      *
@@ -683,7 +683,9 @@ class AppointmentsController extends Controller
         $record['total_fees'] = round(($total_fees + $total_commission), 2);
         //for mobile Alert message
         $mobile_number = $record['doctor']['country_code'] . $record['doctor']['mobile_number'];
-        $message = "Appointment Confirmed Hai Dr". $record['doctor']['first_name']. ",New appointment confirmed for the following details. Patient Name:" .$record['current_patient_info']['user']['first_name'] ." ". $record['current_patient_info']['user']['last_name']. "Bookingid:". $record['appointment_unique_id'] ."type:". $record['consultation_type'] . "Date:" . $record['booking_date'] ." ". $record['time'] . "Place:" . $record['clinic_address']['clinic_name'] ." ". $record['clinic_address']['street_name'] ." ". $record['clinic_address']['city_village'] ." ". $record['clinic_address']['state'] . ".";
+        // $message = "Appointment Confirmed Hai Dr". $record['doctor']['first_name']. ",New appointment confirmed for the following details. Patient Name:" .$record['current_patient_info']['user']['first_name'] ." ". $record['current_patient_info']['user']['last_name']. "Bookingid:". $record['appointment_unique_id'] ."type:". $record['consultation_type'] . "Date:" . $record['booking_date'] ." ". $record['time'] . "Place:" . $record['clinic_address']['clinic_name'] ." ". $record['clinic_address']['street_name'] ." ". $record['clinic_address']['city_village'] ." ". $record['clinic_address']['state'] . ".";
+        $message = "Appointment Confirmed Hai Dr". $record['doctor']['first_name']. ".";
+
         $abc = $this->send($mobile_number, $message);
         $record['abc'] = $abc;
         //for Email Alert message
