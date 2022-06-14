@@ -1006,7 +1006,8 @@ class UserController extends Controller
             // check if admin has suspended the account
             return new SuccessMessage('Waiting for Admin to approve your account.', 200);
         } elseif ($user->is_active == 2) {
-            return new ErrorMessage('Admin has suspended your account.', 403);
+            // return new ErrorMessage('Admin has suspended your account.', 403);
+            return new ErrorMessage('Your account has been deactivated. Please contact support.', 403);
         }
 
         $client = PasswordGrantClient::where('personal_access_client', 1)->first();
