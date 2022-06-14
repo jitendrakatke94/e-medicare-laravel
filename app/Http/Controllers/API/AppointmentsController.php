@@ -685,7 +685,7 @@ class AppointmentsController extends Controller
         $mobile_number = $record['doctor']['country_code'] . $record['doctor']['mobile_number'];
         $message = "Appointment Confirmed
         Hai Dr". $record['doctor']['first_name']. ",New appointment confirmed for the following details.
-        Patient Name:". $record['current_patient_info']['user']['first_name']['last_name'] .
+        Patient Name:". $record['current_patient_info']['user']['first_name'] + $record['current_patient_info']['user']['last_name'].
         "Bookingid:". $record['appointment_unique_id'] .
         "type:". $record['consultation_type'] .
         "Date:" . $record['booking_date'] + $record['time'] . 
