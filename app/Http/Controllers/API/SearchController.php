@@ -147,7 +147,6 @@ class SearchController extends Controller
         ]);
         // $location = $validatedData['location'];
         $location = explode("&", $validatedData['location']['district']);
-        return str_replace('latitude=', '', $location[1]) != 'undefined' ? str_replace('latitude=', '', $location[1]) : 0;
         $filter = array();
         if (!empty($validatedData['filter'])) {
             $filter = $validatedData['filter'];
