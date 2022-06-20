@@ -169,7 +169,16 @@ class SearchController extends Controller
         $distance_in_km = 35;
         $list = DoctorPersonalInfo::with('user:id,first_name,last_name')->whereHas('user', function ($query) {
             $query->where('is_active', '1');
-        })->whereHas('address', function ($query) use ($location, $distance_in_km) {
+        })->with(['address'=> function ($query) use ($location, $distance_in_km) {
+            $query->selectRaw("id,user_id,street_name,city_village,district,state,country,pincode,
+            ( 6371 * acos( cos( radians(?) ) *
+              cos( radians( latitude ) )
+              * cos( radians( longitude ) - radians(?)
+              ) + sin( radians(?) ) *
+              sin( radians( latitude ) ) )
+            ) AS distance", [str_replace('latitude=', '', $location[1]) != 'undefined' ? str_replace('latitude=', '', $location[1]) : null, str_replace('longitude=', '', $location[2])!= 'undefined' ? str_replace('longitude=', '', $location[2]) : null, str_replace('latitude=', '', $location[1]) != 'undefined' ? str_replace('latitude=', '', $location[1]) : null])
+            ->having("distance", "<", $distance_in_km);
+        }])->whereHas('address', function ($query) use ($location, $distance_in_km) {
             $query->selectRaw("id,user_id,street_name,city_village,district,state,country,pincode,
             ( 6371 * acos( cos( radians(?) ) *
               cos( radians( latitude ) )
