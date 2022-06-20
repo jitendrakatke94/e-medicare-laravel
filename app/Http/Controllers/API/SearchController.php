@@ -18,6 +18,7 @@ use Str;
 use App\Model\Offers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\User;
 
 class SearchController extends Controller
 {
@@ -143,10 +144,10 @@ class SearchController extends Controller
             'sortBy' => 'nullable|string',
             'orderBy' => 'nullable|in:asc,desc',
             'timezone' => 'nullable|timezone',
-            'latitude' => ['nullable', 'regex:/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/'], 'longitude' => ['nullable', 'regex:/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/', 'required_with:latitude'],
         ]);
-
-        $location = $validatedData['location'];
+        // $location = $validatedData['location'];
+        $location = explode("&", $validatedData['location']['district']);
+        return str_replace('latitude=', '', $location[1]) != 'undefined' ? str_replace('latitude=', '', $location[1]) : 0;
         $filter = array();
         if (!empty($validatedData['filter'])) {
             $filter = $validatedData['filter'];
@@ -166,49 +167,57 @@ class SearchController extends Controller
 
             $orderBy = $validatedData['orderBy'];
         }
+        $distance_in_km = 35;
         $list = DoctorPersonalInfo::with('user:id,first_name,last_name')->whereHas('user', function ($query) {
             $query->where('is_active', '1');
-        })->with(['address' => function ($query) use ($location) {
+        })->whereHas('address', function ($query) use ($location, $distance_in_km) {
+            $query->selectRaw("id,user_id,street_name,city_village,district,state,country,pincode,
+            ( 6371 * acos( cos( radians(?) ) *
+              cos( radians( latitude ) )
+              * cos( radians( longitude ) - radians(?)
+              ) + sin( radians(?) ) *
+              sin( radians( latitude ) ) )
+            ) AS distance", [str_replace('latitude=', '', $location[1]) != 'undefined' ? str_replace('latitude=', '', $location[1]) : null, str_replace('longitude=', '', $location[2])!= 'undefined' ? str_replace('longitude=', '', $location[2]) : null, str_replace('latitude=', '', $location[1]) != 'undefined' ? str_replace('latitude=', '', $location[1]) : null])
+            ->having("distance", "<", $distance_in_km);
+            // if (array_key_exists('street_name', $location) && !empty($location['street_name'])) {
+            //     $query->where('street_name', 'like', '%' . $location['street_name'] . '%');
+            // }
+            // if (array_key_exists('city_village', $location) && !empty($location['city_village'])) {
+            //     $query->where('city_village', 'like', '%' . $location['city_village'] . '%');
+            // }
+            // if (array_key_exists('state', $location) && !empty($location['state'])) {
+            //     $query->where('state', 'like', '%' . $location['state'] . '%');
+            // }
+            // if (array_key_exists('district', $location) && !empty($location['district'])) {
+            //     $query->where('district', 'like', '%' . $location['district'] . '%');
+            // }
+            // if (array_key_exists('country', $location) && !empty($location['country'])) {
+            //     $query->where('country', 'like', '%' . $location['country'] . '%');
+            // }
+            // $query->where('address_type', 'CLINIC');
+        // }])->whereHas('address', function (Builder $query) use ($location, $request) {
 
-            if (array_key_exists('street_name', $location) && !empty($location['street_name'])) {
-                $query->where('street_name', 'like', '%' . $location['street_name'] . '%');
-            }
-            if (array_key_exists('city_village', $location) && !empty($location['city_village'])) {
-                $query->where('city_village', 'like', '%' . $location['city_village'] . '%');
-            }
-            if (array_key_exists('state', $location) && !empty($location['state'])) {
-                $query->where('state', 'like', '%' . $location['state'] . '%');
-            }
-            if (array_key_exists('district', $location) && !empty($location['district'])) {
-                $query->where('district', 'like', '%' . $location['district'] . '%');
-            }
-            if (array_key_exists('country', $location) && !empty($location['country'])) {
-                $query->where('country', 'like', '%' . $location['country'] . '%');
-            }
-            $query->where('address_type', 'CLINIC');
-        }])->whereHas('address', function (Builder $query) use ($location, $request) {
+        //     if (array_key_exists('street_name', $location) && !empty($location['street_name'])) {
+        //         $query->where('street_name', 'like', '%' . $location['street_name'] . '%');
+        //     }
+        //     if (array_key_exists('city_village', $location) && !empty($location['city_village'])) {
+        //         $query->where('city_village', 'like', '%' . $location['city_village'] . '%');
+        //     }
+        //     if (array_key_exists('state', $location) && !empty($location['state'])) {
+        //         $query->where('state', 'like', '%' . $location['state'] . '%');
+        //     }
+        //     if (array_key_exists('district', $location) && !empty($location['district'])) {
+        //         $query->where('district', 'like', '%' . $location['district'] . '%');
+        //     }
+        //     if (array_key_exists('country', $location) && !empty($location['country'])) {
+        //         $query->where('country', 'like', '%' . $location['country'] . '%');
+        //     }
+        //     $query->where('address_type', 'CLINIC');
 
-            if (array_key_exists('street_name', $location) && !empty($location['street_name'])) {
-                $query->where('street_name', 'like', '%' . $location['street_name'] . '%');
-            }
-            if (array_key_exists('city_village', $location) && !empty($location['city_village'])) {
-                $query->where('city_village', 'like', '%' . $location['city_village'] . '%');
-            }
-            if (array_key_exists('state', $location) && !empty($location['state'])) {
-                $query->where('state', 'like', '%' . $location['state'] . '%');
-            }
-            if (array_key_exists('district', $location) && !empty($location['district'])) {
-                $query->where('district', 'like', '%' . $location['district'] . '%');
-            }
-            if (array_key_exists('country', $location) && !empty($location['country'])) {
-                $query->where('country', 'like', '%' . $location['country'] . '%');
-            }
-            $query->where('address_type', 'CLINIC');
-
-            if ($request->filled('latitude')) {
-                $query->selectRaw("( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) )
-                       * cos( radians( longitude ) - radians(?)) + sin( radians(?) ) * sin( radians( latitude ) ) )) AS distance", [$request->latitude, $request->longitude, $request->latitude])->having("distance", "<", 10);
-            }
+            // if ($request->filled('latitude')) {
+            //     $query->selectRaw("( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) )
+            //            * cos( radians( longitude ) - radians(?)) + sin( radians(?) ) * sin( radians( latitude ) ) )) AS distance", [$request->latitude, $request->longitude, $request->latitude])->having("distance", "<", 10);
+            // }
         })->whereHas('specialization', function (Builder $query) use ($filter) {
             if (array_key_exists('specialization', $filter) && !empty($filter['specialization'])) {
                 $query->whereIn('specializations_id', [$filter['specialization']]);
@@ -981,81 +990,167 @@ class SearchController extends Controller
             'country' => 'required',
             'state' => 'required',
             'district' => 'required',
-            'keyword' => 'required'
+            'keyword' => 'required',
+            'latitude' => ['required', 'regex:/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/'],
+            'longitude' => ['required', 'regex:/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/']
         ]);
 
         $sortBy = 'id';
         $orderBy = 'asc';
-        $list = DB::select(
-            'CALL `get_doctors_search`("'.$validatedData['keyword'].'", "'.$validatedData['state'].'", "'.$validatedData['country'].'", "'.$validatedData['district'].'")'
-         );
-        $doctor_info = [];
-        foreach($list as $object) {
-            if ($object->profile_photo != NULL) {
-        
+        $distance_in_km = 35;
+
+
+        $list = User::where(DB::raw("CONCAT(`first_name`, ' ', `middle_name`, ' ', `last_name`)"), 'LIKE', "%".$validatedData['keyword']."%")->where('user_type', 'DOCTOR')->with('address', 'doctor', 'doctor.specialization')
+        ->orWhereHas('doctor.specialization', function($query) use($validatedData) {
+            $query->where('name', $validatedData['keyword']);
+        });
+        $list = $list->whereHas('address', function($query) use($validatedData, $distance_in_km) {
+            $query->selectRaw("id,user_id,street_name,city_village,district,state,country,pincode,
+            ( 6371 * acos( cos( radians(?) ) *
+              cos( radians( latitude ) )
+              * cos( radians( longitude ) - radians(?)
+              ) + sin( radians(?) ) *
+              sin( radians( latitude ) ) )
+            ) AS distance", [$validatedData['latitude'], $validatedData['longitude'], $validatedData['latitude']])
+            ->having("distance", "<", $distance_in_km);
+        })->get();
+        $record = [];
+        foreach($list as $object){
+            if ($object->profile_photo != null) {
+                
                 $path = storage_path() . "/app/" . $object->profile_photo;
                 if (file_exists($path)) {
-                    $path = Storage::url($object->profile_photo);
+                    $path = asset(Storage::url($object->profile_photo));
                 }
+            }else{
+                $path = null;
             }
-            $doctor_info[] = array(
-                'id' => $object->id,
-                'user_id'=>$object->user_id,
-                'doctor_unique_id'=> $object->doctor_unique_id,
-                'title' => $object->title,
-                'gender' => $object->gender,
-                'date_of_birth' => $object->date_of_birth,
-                'age'=>$object->age,
-                'qualification' => $object->qualification,
-                'years_of_experience'=>$object->years_of_experience,
-                'alt_country_code'=>$object->alt_country_code,
-                'alt_mobile_number'=>$object->alt_mobile_number,
-                'clinic_name'=> $object->clinic_name,
-                'career_profile'=>$object->career_profile,
-                'education_training'=>$object->education_training,
-                'experience'=>$object->experience,
-                'is_feature'=>$object->is_feature,
-                'appointment_type_online'=>$object->appointment_type_online,
-                'appointment_type_offline'=>$object->appointment_type_offline,
-                'consulting_online_fee'=>$object->consulting_online_fee,
-                'consulting_offline_fee'=>$object->consulting_offline_fee,
-                'user' => 
-                    array( 
-                        'id' => $object->user_id,
-                        'first_name' => $object->first_name,
-                        'middle_name' => $object->middle_name,
-                        'last_name' => $object->last_name,
-                        'profile_photo' => asset($path)
-                    ),
-                'specilization' => 
-                    array( 
-                        'name' => $object->name
-                    ),
-                'address' => 
-                    [array( 
-                        'street_name' => $object->street_name,
-                        'city_village' => $object->city_village,
-                        'district' => $object->district,
-                        'state' => $object->state,
-                        'country' => $object->country,
-                        'pincode' => $object->pincode,
-                        'country_code' => $object->country_code,
-                        'contact_number' => $object->contact_number,
-                        'clinic_name' => $object->clinic_name
-                    )],
-                    'favourite_doctors' => [array(
-                        'user_id'=>$object->Uid,
-                        'doctor_id'=> $object->Did
-                    )]
-            );
-            
-        };
-        
-        if(count($doctor_info) > 0 ){
-            $doctor_info = array('data'=>$doctor_info);
-            return response()->json($doctor_info, 200);
+            $object['profile_photo'] = $path;
+            $record[] = $object;
         }
-        return new ErrorMessage("We couldn't find doctors for you", 404);
+        return response()->json($record, 200);
+        // $apikey = config('app.google')['maps_key'];
+        // $addressresponse = json_decode(file_get_contents(
+        //     'https://maps.googleapis.com/maps/api/geocode/json?latlng=' .
+        //         urlencode(implode(",", [
+        //             $validatedData['latitude'] ?? '',
+        //             $validatedData['longitude'] ?? '',
+        //         ])) . '&key=' . $apikey
+        // ));
+
+        // try {
+        //     if ($addressresponse->status == 'OK') {
+        //         $geoResult = [];
+        //         $geoResult['country'] = NULL;
+        //         $geoResult['state'] = NULL;
+        //         $geoResult['district'] = NULL;
+        //         $geoResult['postal_code'] = NULL;
+        //         $geoResult['route'] = NULL;
+        //         foreach ($addressresponse->results as $result) {
+        //             foreach ($result->address_components as $address) {
+        //                 if (in_array('country', $address->types)) {
+        //                     $geoResult['country'] = $geoResult['country'] ?? $address->long_name;
+        //                 }
+        //                 if (in_array('administrative_area_level_1', $address->types)) {
+        //                     $geoResult['state'] = $geoResult['state'] ?? $address->long_name;
+        //                 }
+        //                 if (in_array('administrative_area_level_2', $address->types)) {
+        //                     $geoResult['county'] = $geoResult['county'] ?? $address->long_name;
+        //                 }
+        //                 if (in_array('locality', $address->types)) {
+        //                     $geoResult['district'] = $geoResult['district'] ?? $address->long_name;
+        //                 }
+        //                 if (in_array('postal_code', $address->types)) {
+        //                     $geoResult['postal_code'] = $geoResult['postal_code'] ?? $address->long_name;
+        //                 }
+        //                 if (in_array('route', $address->types)) {
+        //                     $geoResult['route'] = $geoResult['route'] ?? $address->long_name;
+        //                 }
+        //             }
+        //         }
+        //         // return response()->json($geoResult, 200);
+        //         $list = DB::select(
+        //             'CALL `get_doctors_search`("'.$validatedData['keyword'].'", "'.$geoResult['state'].'", "'.$geoResult['country'].'", "'.$geoResult['district'].'")'
+        //          );
+        //         $doctor_info = [];
+        //         foreach($list as $object) {
+        //             if ($object->profile_photo != NULL) {
+                
+        //                 $path = storage_path() . "/app/" . $object->profile_photo;
+        //                 if (file_exists($path)) {
+        //                     $path = Storage::url($object->profile_photo);
+        //                 }
+        //             }
+        //             $doctor_info[] = array(
+        //                 'id' => $object->id,
+        //                 'user_id'=>$object->user_id,
+        //                 'doctor_unique_id'=> $object->doctor_unique_id,
+        //                 'title' => $object->title,
+        //                 'gender' => $object->gender,
+        //                 'date_of_birth' => $object->date_of_birth,
+        //                 'age'=>$object->age,
+        //                 'qualification' => $object->qualification,
+        //                 'years_of_experience'=>$object->years_of_experience,
+        //                 'alt_country_code'=>$object->alt_country_code,
+        //                 'alt_mobile_number'=>$object->alt_mobile_number,
+        //                 'clinic_name'=> $object->clinic_name,
+        //                 'career_profile'=>$object->career_profile,
+        //                 'education_training'=>$object->education_training,
+        //                 'experience'=>$object->experience,
+        //                 'is_feature'=>$object->is_feature,
+        //                 'appointment_type_online'=>$object->appointment_type_online,
+        //                 'appointment_type_offline'=>$object->appointment_type_offline,
+        //                 'consulting_online_fee'=>$object->consulting_online_fee,
+        //                 'consulting_offline_fee'=>$object->consulting_offline_fee,
+        //                 'user' => 
+        //                     array( 
+        //                         'id' => $object->user_id,
+        //                         'first_name' => $object->first_name,
+        //                         'middle_name' => $object->middle_name,
+        //                         'last_name' => $object->last_name,
+        //                         'profile_photo' => asset($path)
+        //                     ),
+        //                 'specilization' => 
+        //                     array( 
+        //                         'name' => $object->name
+        //                     ),
+        //                 'address' => 
+        //                     [array( 
+        //                         'street_name' => $object->street_name,
+        //                         'city_village' => $object->city_village,
+        //                         'district' => $object->district,
+        //                         'state' => $object->state,
+        //                         'country' => $object->country,
+        //                         'pincode' => $object->pincode,
+        //                         'country_code' => $object->country_code,
+        //                         'contact_number' => $object->contact_number,
+        //                         'clinic_name' => $object->clinic_name
+        //                     )],
+        //                     'favourite_doctors' => [array(
+        //                         'user_id'=>$object->Uid,
+        //                         'doctor_id'=> $object->Did
+        //                     )]
+        //             );
+                    
+        //         };
+                
+        //         if(count($doctor_info) > 0 ){
+        //             $doctor_info = array('data'=>$doctor_info);
+        //             return response()->json($doctor_info, 200);
+        //         }
+        //         return new ErrorMessage("We couldn't find doctors for you", 404);
+        //     } else if ($addressresponse->status == 'REQUEST_DENIED') {
+        //         return new ErrorMessage('Maps API error.', 422);
+        //     }
+        // } catch (\Exception $e) {
+        //     if ($addressresponse['status'] == 'REQUEST_DENIED') {
+        //         return new ErrorMessage('Maps API error.', 422);
+        //     }
+        //     return new ErrorMessage("The address given is invalid.", 404);
+        // }
+
+
+        
     }
 
     public function topDoctorsAndOffersList() {
