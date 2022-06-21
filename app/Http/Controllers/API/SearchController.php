@@ -167,29 +167,63 @@ class SearchController extends Controller
             $orderBy = $validatedData['orderBy'];
         }
         $distance_in_km = 35;
-        $lat = str_replace('latitude=', '', $location[1]) != 'undefined' ? str_replace('latitude=', '', $location[1]) : null;
-        $lang = str_replace('longitude=', '', $location[2])!= 'undefined' ? str_replace('longitude=', '', $location[2]) : null;
+        // $lat = str_replace('latitude=', '', $location[1]) != 'undefined' ? str_replace('latitude=', '', $location[1]) : null;
+        // $lang = str_replace('longitude=', '', $location[2])!= 'undefined' ? str_replace('longitude=', '', $location[2]) : null;
+        // return $validatedData['location']['district'];
+        $apikey = config('app.google')['maps_key'];
+        $addressresponse = json_decode(file_get_contents(
+            'https://maps.googleapis.com/maps/api/geocode/json?address=' .
+                urlencode(implode(",", [
+                    $validatedData['location']['district'] ?? '',
+                ])) . '&key=' . $apikey
+        ), true);
+
+        return $addressresponse;
+        $list = Address::whereHas('user', function ($query) use($lat,$lang) {
+            $query->where('is_active', '1');
+        })->where('address_type', 'CLINIC')->selectRaw("id,user_id,street_name,city_village,district,state,country,pincode,
+                     ( 6371 * acos( cos( radians(?) ) *
+                       cos( radians( latitude ) )
+                       * cos( radians( longitude ) - radians(?)
+                       ) + sin( radians(?) ) *
+                       sin( radians( latitude ) ) )
+                     ) AS distance", [$lat, $lang, $lat])
+            ->having("distance", "<", $distance_in_km)
+            ->orderBy("distance", 'asc')
+            ->paginate(Address::$page);
+        return response()->json($list, 200);
+
+
+
+
+
+
+        
         // return $lang;
         $list = DoctorPersonalInfo::with('user:id,first_name,last_name')->whereHas('user', function ($query) {
             $query->where('is_active', '1');
         })->with(['address'=> function ($query) use ($lat, $lang, $distance_in_km) {
-            $query->selectRaw("id,user_id,street_name,city_village,district,state,country,pincode,address_type,
+            $query
+            ->selectRaw("id,user_id,street_name,city_village,district,state,country,pincode,address_type,latitude,longitude,
             ( 6371 * acos( cos( radians(?) ) *
               cos( radians( latitude ) )
               * cos( radians( longitude ) - radians(?)
               ) + sin( radians(?) ) *
               sin( radians( latitude ) ) )
             ) AS distance", [$lat, $lang , $lang])
-            ->having("distance", "<", $distance_in_km)->where('address_type', 'CLINIC');
+            ->having("distance", "<", $distance_in_km)
+            ->where('address_type', 'CLINIC');
         }])->whereHas('address', function ($query) use ($lat, $lang, $distance_in_km) {
-            $query->selectRaw("id,user_id,street_name,city_village,district,state,country,pincode,
+            $query
+            ->selectRaw("id,user_id,street_name,city_village,district,state,country,pincode,address_type,latitude,longitude,
             ( 6371 * acos( cos( radians(?) ) *
               cos( radians( latitude ) )
               * cos( radians( longitude ) - radians(?)
               ) + sin( radians(?) ) *
               sin( radians( latitude ) ) )
             ) AS distance", [$lat,$lang,$lat])
-            ->having("distance", "<", $distance_in_km)->where('address_type', 'CLINIC');
+            ->having("distance", "<", $distance_in_km)
+            ->where('address_type', 'CLINIC');
             // if (array_key_exists('street_name', $location) && !empty($location['street_name'])) {
             //     $query->where('street_name', 'like', '%' . $location['street_name'] . '%');
             // }
@@ -252,7 +286,7 @@ class SearchController extends Controller
                 });
             }
         });
-
+        
         if (!empty($shift)) {
             $list = $list->whereHas('timeslot', function (Builder $query) use ($shift) {
                 if (in_array('MORNING', $shift)) {
@@ -271,7 +305,7 @@ class SearchController extends Controller
         }
 
         $list = $list->with('specialization')->withCount('reviews')->orderBy($sortBy, $orderBy)->paginate(DoctorPersonalInfo::$page);
-
+        
         if ($list->count() > 0) {
             return response()->json($list, 200);
         }
