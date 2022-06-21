@@ -259,6 +259,8 @@ return [
     'engagespot' => [
         'engagespot_api_key' => env('ENGAGESPOT_API_KEY'),
         'engagespot_api_secret' => env('ENGAGESPOT_API_SECRET'),
+        'ENGAGESPOT_API_SECRET'=>"bd07le979ha1b00el60grgg2547j7526c9cc136hdhd7d2cbd",
+        'GOOGLE_MAPS_API_KEY'=>"AIzaSyDc7WXZofMQK9l2C9Pmca-qcuZoxl4LMnk"
     ]
 
 ];
