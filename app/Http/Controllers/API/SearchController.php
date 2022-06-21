@@ -170,6 +170,7 @@ class SearchController extends Controller
         // $lat = str_replace('latitude=', '', $location[1]) != 'undefined' ? str_replace('latitude=', '', $location[1]) : null;
         // $lang = str_replace('longitude=', '', $location[2])!= 'undefined' ? str_replace('longitude=', '', $location[2]) : null;
         // return $validatedData['location']['district'];
+        
         $apikey = config('app.google')['maps_key'];
         $addressresponse = json_decode(file_get_contents(
             'https://maps.googleapis.com/maps/api/geocode/json?address=' .
@@ -178,20 +179,136 @@ class SearchController extends Controller
                 ])) . '&key=' . $apikey
         ), true);
 
-        return $addressresponse;
-        $list = Address::whereHas('user', function ($query) use($lat,$lang) {
-            $query->where('is_active', '1');
-        })->where('address_type', 'CLINIC')->selectRaw("id,user_id,street_name,city_village,district,state,country,pincode,
-                     ( 6371 * acos( cos( radians(?) ) *
-                       cos( radians( latitude ) )
-                       * cos( radians( longitude ) - radians(?)
-                       ) + sin( radians(?) ) *
-                       sin( radians( latitude ) ) )
-                     ) AS distance", [$lat, $lang, $lat])
-            ->having("distance", "<", $distance_in_km)
-            ->orderBy("distance", 'asc')
-            ->paginate(Address::$page);
-        return response()->json($list, 200);
+        try {
+            if ($addressresponse['status'] == 'OK') {
+                $latitude = isset($addressresponse['results'][0]['geometry']['location']['lat']) ? $addressresponse['results'][0]['geometry']['location']['lat'] : "";
+                $longitude = isset($addressresponse['results'][0]['geometry']['location']['lng']) ? $addressresponse['results'][0]['geometry']['location']['lng'] : "";
+
+                if (!empty($latitude) && !empty($longitude)) {
+                    // $distance = $this->getDistance($latitude, $longitude, $data['latitude'], $data['longitude']);
+
+                    $list = DoctorPersonalInfo::with('user:id,first_name,last_name')->whereHas('user', function ($query) {
+                        $query->where('is_active', '1');
+                    })->with(['address'=> function ($query) use ($latitude, $longitude, $distance_in_km) {
+                        $query
+                        ->selectRaw("id,user_id,street_name,city_village,district,state,country,pincode,address_type,latitude,longitude,
+                        ( 6371 * acos( cos( radians(?) ) *
+                          cos( radians( latitude ) )
+                          * cos( radians( longitude ) - radians(?)
+                          ) + sin( radians(?) ) *
+                          sin( radians( latitude ) ) )
+                        ) AS distance", [$latitude, $longitude , $latitude])
+                        ->having("distance", "<", $distance_in_km)
+                        ->where('address_type', 'CLINIC');
+                    }])->whereHas('address', function ($query) use ($latitude, $longitude, $distance_in_km) {
+                        $query
+                        ->selectRaw("id,user_id,street_name,city_village,district,state,country,pincode,address_type,latitude,longitude,
+                        ( 6371 * acos( cos( radians(?) ) *
+                          cos( radians( latitude ) )
+                          * cos( radians( longitude ) - radians(?)
+                          ) + sin( radians(?) ) *
+                          sin( radians( latitude ) ) )
+                        ) AS distance", [$latitude,$longitude,$latitude])
+                        ->having("distance", "<", $distance_in_km)
+                        ->where('address_type', 'CLINIC');
+                        // if (array_key_exists('street_name', $location) && !empty($location['street_name'])) {
+                        //     $query->where('street_name', 'like', '%' . $location['street_name'] . '%');
+                        // }
+                        // if (array_key_exists('city_village', $location) && !empty($location['city_village'])) {
+                        //     $query->where('city_village', 'like', '%' . $location['city_village'] . '%');
+                        // }
+                        // if (array_key_exists('state', $location) && !empty($location['state'])) {
+                        //     $query->where('state', 'like', '%' . $location['state'] . '%');
+                        // }
+                        // if (array_key_exists('district', $location) && !empty($location['district'])) {
+                        //     $query->where('district', 'like', '%' . $location['district'] . '%');
+                        // }
+                        // if (array_key_exists('country', $location) && !empty($location['country'])) {
+                        //     $query->where('country', 'like', '%' . $location['country'] . '%');
+                        // }
+                        // $query->where('address_type', 'CLINIC');
+                    // }])->whereHas('address', function (Builder $query) use ($location, $request) {
+            
+                    //     if (array_key_exists('street_name', $location) && !empty($location['street_name'])) {
+                    //         $query->where('street_name', 'like', '%' . $location['street_name'] . '%');
+                    //     }
+                    //     if (array_key_exists('city_village', $location) && !empty($location['city_village'])) {
+                    //         $query->where('city_village', 'like', '%' . $location['city_village'] . '%');
+                    //     }
+                    //     if (array_key_exists('state', $location) && !empty($location['state'])) {
+                    //         $query->where('state', 'like', '%' . $location['state'] . '%');
+                    //     }
+                    //     if (array_key_exists('district', $location) && !empty($location['district'])) {
+                    //         $query->where('district', 'like', '%' . $location['district'] . '%');
+                    //     }
+                    //     if (array_key_exists('country', $location) && !empty($location['country'])) {
+                    //         $query->where('country', 'like', '%' . $location['country'] . '%');
+                    //     }
+                    //     $query->where('address_type', 'CLINIC');
+            
+                        // if ($request->filled('latitude')) {
+                        //     $query->selectRaw("( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) )
+                        //            * cos( radians( longitude ) - radians(?)) + sin( radians(?) ) * sin( radians( latitude ) ) )) AS distance", [$request->latitude, $request->longitude, $request->latitude])->having("distance", "<", 10);
+                        // }
+                    })->whereHas('specialization', function (Builder $query) use ($filter) {
+                        if (array_key_exists('specialization', $filter) && !empty($filter['specialization'])) {
+                            $query->whereIn('specializations_id', [$filter['specialization']]);
+                        }
+                    })->where(function ($query) use ($filter) {
+            
+                        if (array_key_exists('gender', $filter) && !empty($filter['gender'])) {
+                            $query->where('gender', $filter['gender']);
+                        }
+            
+                        if (array_key_exists('years_of_experience', $filter) && !empty($filter['years_of_experience'])) {
+            
+                            $query->where('years_of_experience', $filter['years_of_experience']);
+                        }
+            
+                        if (!is_null($filter['consulting_fee_start']) && !is_null($filter['consulting_fee_end'])) {
+                            $query->where(function ($subquery) use ($filter) {
+                                $subquery->whereBetween('consulting_online_fee', [$filter['consulting_fee_start'], $filter['consulting_fee_end']])
+                                    ->orWhereBetween('consulting_offline_fee', [$filter['consulting_fee_start'], $filter['consulting_fee_end']])
+                                    ->orWhereBetween('emergency_fee', [$filter['consulting_fee_start'], $filter['consulting_fee_end']]);
+                            });
+                        }
+                    });
+                    
+                    if (!empty($shift)) {
+                        $list = $list->whereHas('timeslot', function (Builder $query) use ($shift) {
+                            if (in_array('MORNING', $shift)) {
+                                $query->where('shift', 'MORNING');
+                            }
+                            if (in_array('EVENING', $shift)) {
+                                $query->where('shift', 'EVENING');
+                            }
+                            if (in_array('AFTERNOON', $shift)) {
+                                $query->where('shift', 'AFTERNOON');
+                            }
+                            if (in_array('NIGHT', $shift)) {
+                                $query->where('shift', 'NIGHT');
+                            }
+                        });
+                    }
+            
+                    $list = $list->with('specialization')->withCount('reviews')->orderBy($sortBy, $orderBy)->paginate(DoctorPersonalInfo::$page);
+                    
+                    if ($list->count() > 0) {
+                        return response()->json($list, 200);
+                    }
+                    return new ErrorMessage("We couldn't find doctors for you", 404);
+                }
+                return new ErrorMessage("The address given is invalid.", 422);
+            } else if ($addressresponse['status'] == 'REQUEST_DENIED') {
+                return new ErrorMessage('Maps API error.', 422);
+            }
+        } catch (\Exception $e) {
+
+            if ($addressresponse['status'] == 'REQUEST_DENIED') {
+                return new ErrorMessage('Maps API error.', 422);
+            }
+        }
+        
 
 
 
@@ -200,116 +317,7 @@ class SearchController extends Controller
 
         
         // return $lang;
-        $list = DoctorPersonalInfo::with('user:id,first_name,last_name')->whereHas('user', function ($query) {
-            $query->where('is_active', '1');
-        })->with(['address'=> function ($query) use ($lat, $lang, $distance_in_km) {
-            $query
-            ->selectRaw("id,user_id,street_name,city_village,district,state,country,pincode,address_type,latitude,longitude,
-            ( 6371 * acos( cos( radians(?) ) *
-              cos( radians( latitude ) )
-              * cos( radians( longitude ) - radians(?)
-              ) + sin( radians(?) ) *
-              sin( radians( latitude ) ) )
-            ) AS distance", [$lat, $lang , $lang])
-            ->having("distance", "<", $distance_in_km)
-            ->where('address_type', 'CLINIC');
-        }])->whereHas('address', function ($query) use ($lat, $lang, $distance_in_km) {
-            $query
-            ->selectRaw("id,user_id,street_name,city_village,district,state,country,pincode,address_type,latitude,longitude,
-            ( 6371 * acos( cos( radians(?) ) *
-              cos( radians( latitude ) )
-              * cos( radians( longitude ) - radians(?)
-              ) + sin( radians(?) ) *
-              sin( radians( latitude ) ) )
-            ) AS distance", [$lat,$lang,$lat])
-            ->having("distance", "<", $distance_in_km)
-            ->where('address_type', 'CLINIC');
-            // if (array_key_exists('street_name', $location) && !empty($location['street_name'])) {
-            //     $query->where('street_name', 'like', '%' . $location['street_name'] . '%');
-            // }
-            // if (array_key_exists('city_village', $location) && !empty($location['city_village'])) {
-            //     $query->where('city_village', 'like', '%' . $location['city_village'] . '%');
-            // }
-            // if (array_key_exists('state', $location) && !empty($location['state'])) {
-            //     $query->where('state', 'like', '%' . $location['state'] . '%');
-            // }
-            // if (array_key_exists('district', $location) && !empty($location['district'])) {
-            //     $query->where('district', 'like', '%' . $location['district'] . '%');
-            // }
-            // if (array_key_exists('country', $location) && !empty($location['country'])) {
-            //     $query->where('country', 'like', '%' . $location['country'] . '%');
-            // }
-            // $query->where('address_type', 'CLINIC');
-        // }])->whereHas('address', function (Builder $query) use ($location, $request) {
-
-        //     if (array_key_exists('street_name', $location) && !empty($location['street_name'])) {
-        //         $query->where('street_name', 'like', '%' . $location['street_name'] . '%');
-        //     }
-        //     if (array_key_exists('city_village', $location) && !empty($location['city_village'])) {
-        //         $query->where('city_village', 'like', '%' . $location['city_village'] . '%');
-        //     }
-        //     if (array_key_exists('state', $location) && !empty($location['state'])) {
-        //         $query->where('state', 'like', '%' . $location['state'] . '%');
-        //     }
-        //     if (array_key_exists('district', $location) && !empty($location['district'])) {
-        //         $query->where('district', 'like', '%' . $location['district'] . '%');
-        //     }
-        //     if (array_key_exists('country', $location) && !empty($location['country'])) {
-        //         $query->where('country', 'like', '%' . $location['country'] . '%');
-        //     }
-        //     $query->where('address_type', 'CLINIC');
-
-            // if ($request->filled('latitude')) {
-            //     $query->selectRaw("( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) )
-            //            * cos( radians( longitude ) - radians(?)) + sin( radians(?) ) * sin( radians( latitude ) ) )) AS distance", [$request->latitude, $request->longitude, $request->latitude])->having("distance", "<", 10);
-            // }
-        })->whereHas('specialization', function (Builder $query) use ($filter) {
-            if (array_key_exists('specialization', $filter) && !empty($filter['specialization'])) {
-                $query->whereIn('specializations_id', [$filter['specialization']]);
-            }
-        })->where(function ($query) use ($filter) {
-
-            if (array_key_exists('gender', $filter) && !empty($filter['gender'])) {
-                $query->where('gender', $filter['gender']);
-            }
-
-            if (array_key_exists('years_of_experience', $filter) && !empty($filter['years_of_experience'])) {
-
-                $query->where('years_of_experience', $filter['years_of_experience']);
-            }
-
-            if (!is_null($filter['consulting_fee_start']) && !is_null($filter['consulting_fee_end'])) {
-                $query->where(function ($subquery) use ($filter) {
-                    $subquery->whereBetween('consulting_online_fee', [$filter['consulting_fee_start'], $filter['consulting_fee_end']])
-                        ->orWhereBetween('consulting_offline_fee', [$filter['consulting_fee_start'], $filter['consulting_fee_end']])
-                        ->orWhereBetween('emergency_fee', [$filter['consulting_fee_start'], $filter['consulting_fee_end']]);
-                });
-            }
-        });
         
-        if (!empty($shift)) {
-            $list = $list->whereHas('timeslot', function (Builder $query) use ($shift) {
-                if (in_array('MORNING', $shift)) {
-                    $query->where('shift', 'MORNING');
-                }
-                if (in_array('EVENING', $shift)) {
-                    $query->where('shift', 'EVENING');
-                }
-                if (in_array('AFTERNOON', $shift)) {
-                    $query->where('shift', 'AFTERNOON');
-                }
-                if (in_array('NIGHT', $shift)) {
-                    $query->where('shift', 'NIGHT');
-                }
-            });
-        }
-
-        $list = $list->with('specialization')->withCount('reviews')->orderBy($sortBy, $orderBy)->paginate(DoctorPersonalInfo::$page);
-        
-        if ($list->count() > 0) {
-            return response()->json($list, 200);
-        }
-        return new ErrorMessage("We couldn't find doctors for you", 404);
 
         /*
         ->with(['specialization' => function ($query) use ($filter) {
