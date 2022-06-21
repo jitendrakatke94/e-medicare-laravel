@@ -167,25 +167,27 @@ class SearchController extends Controller
             $orderBy = $validatedData['orderBy'];
         }
         $distance_in_km = 35;
+        $lat = str_replace('latitude=', '', $location[1]) != 'undefined' ? str_replace('latitude=', '', $location[1]) : null;
+        $lang = str_replace('longitude=', '', $location[2])!= 'undefined' ? str_replace('longitude=', '', $location[2]) : null;
         $list = DoctorPersonalInfo::with('user:id,first_name,last_name')->whereHas('user', function ($query) {
             $query->where('is_active', '1');
-        })->with(['address'=> function ($query) use ($location, $distance_in_km) {
+        })->with(['address'=> function ($query) use ($lat, $lang, $distance_in_km) {
             $query->selectRaw("id,user_id,street_name,city_village,district,state,country,pincode,address_type,
             ( 6371 * acos( cos( radians(?) ) *
               cos( radians( latitude ) )
               * cos( radians( longitude ) - radians(?)
               ) + sin( radians(?) ) *
               sin( radians( latitude ) ) )
-            ) AS distance", [str_replace('latitude=', '', $location[1]) != 'undefined' ? str_replace('latitude=', '', $location[1]) : null, str_replace('longitude=', '', $location[2])!= 'undefined' ? str_replace('longitude=', '', $location[2]) : null, str_replace('latitude=', '', $location[1]) != 'undefined' ? str_replace('latitude=', '', $location[1]) : null])
+            ) AS distance", [$lat, $lang , $lang])
             ->having("distance", "<", $distance_in_km)->where('address_type', 'CLINIC');
-        }])->whereHas('address', function ($query) use ($location, $distance_in_km) {
+        }])->whereHas('address', function ($query) use ($lat, $lang, $distance_in_km) {
             $query->selectRaw("id,user_id,street_name,city_village,district,state,country,pincode,
             ( 6371 * acos( cos( radians(?) ) *
               cos( radians( latitude ) )
               * cos( radians( longitude ) - radians(?)
               ) + sin( radians(?) ) *
               sin( radians( latitude ) ) )
-            ) AS distance", [str_replace('latitude=', '', $location[1]) != 'undefined' ? str_replace('latitude=', '', $location[1]) : null, str_replace('longitude=', '', $location[2])!= 'undefined' ? str_replace('longitude=', '', $location[2]) : null, str_replace('latitude=', '', $location[1]) != 'undefined' ? str_replace('latitude=', '', $location[1]) : null])
+            ) AS distance", [$lat,$lang,$lat])
             ->having("distance", "<", $distance_in_km)->where('address_type', 'CLINIC');
             // if (array_key_exists('street_name', $location) && !empty($location['street_name'])) {
             //     $query->where('street_name', 'like', '%' . $location['street_name'] . '%');
