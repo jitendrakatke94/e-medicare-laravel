@@ -1234,7 +1234,7 @@ class SearchController extends Controller
                 'time_intravel'=>$doctor->time_intravel,
                 'created_by'=>$doctor->created_by,
                 'updated_by'=>$doctor->updated_by,
-                'user'=>[array(
+                'user'=>array(
                     'first_name'=>$doctor->first_name,
                     'middle_name'=>$doctor->middle_name,
                     'last_name'=>$doctor->last_name,
@@ -1243,8 +1243,8 @@ class SearchController extends Controller
                     'country_code'=>$doctor->country_code,
                     'mobile_number'=>$doctor->mobile_number,
                     'profile_photo'=>asset($path),
-                )],
-                'address'=>[array(
+                ),
+                'address'=>array(
                     'user_id'=>$doctor->user_id,
                     'address_type'=>$doctor->address_type,
                     'street_name'=>$doctor->street_name,
@@ -1256,8 +1256,8 @@ class SearchController extends Controller
                     'country_code'=>$doctor->country_code,
                     'contact_number'=>$doctor->contact_number,
                     'clinic_name'=>$doctor->clinic_name,
-                )],
-                'appointment'=>[array(
+                ),
+                'appointment'=>array(
                     'user_id'=>$doctor->user_id,
                     'doctor_id'=>$doctor->doctor_id,
                     'patient_id'=>$doctor->patient_id,
@@ -1269,7 +1269,7 @@ class SearchController extends Controller
                     'start_time'=>$doctor->start_time,
                     'end_time'=>$doctor->end_time,
                     'consultation_type'=>$doctor->consultation_type,
-                )],
+                ),
                 );
         }
 
