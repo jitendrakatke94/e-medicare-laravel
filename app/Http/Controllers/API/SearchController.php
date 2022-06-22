@@ -171,7 +171,6 @@ class SearchController extends Controller
         // $lang = str_replace('longitude=', '', $location[2])!= 'undefined' ? str_replace('longitude=', '', $location[2]) : null;
         // return $validatedData['location']['district'];
         
-        //AIzaSyDOrNajsLJzh12LeqYA1GwJy_GvX3E44jM
         $apikey = config('app.google')['maps_key'];
         $addressresponse = json_decode(file_get_contents(
             'https://maps.googleapis.com/maps/api/geocode/json?address=' .
