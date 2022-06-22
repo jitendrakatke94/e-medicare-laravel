@@ -256,9 +256,5 @@ return [
 
     ],
     'beacon_key' => env('BEACON_KEY'),
-    'engagespot' => [
-        'engagespot_api_key' => env('ENGAGESPOT_API_KEY'),
-        'engagespot_api_secret' => env('ENGAGESPOT_API_SECRET'),
-    ]
 
 ];
