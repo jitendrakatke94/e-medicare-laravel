@@ -257,7 +257,7 @@ class ServiceController extends Controller
         $geoResult['postal_code'] = NULL;
         $geoResult['route'] = NULL;
 
-        return response()->json($geoResult, 200);
+        // return response()->json($geoResult, 200);
 
         $apikey = config('app.google')['maps_key'];
         $addressresponse = json_decode(file_get_contents(
