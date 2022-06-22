@@ -146,7 +146,6 @@ class SearchController extends Controller
             'timezone' => 'nullable|timezone',
         ]);
         // $location = $validatedData['location'];
-        $location = explode("&", $validatedData['location']['district']);
         $filter = array();
         if (!empty($validatedData['filter'])) {
             $filter = $validatedData['filter'];
