@@ -41,6 +41,10 @@ class Followups extends Model
     {
         return $this->hasOne('App\User', 'id', 'doctor_id');
     }
+    public function doctorInfo()
+    {
+        return $this->hasOne('App\Model\DoctorPersonalInfo', 'user_id', 'doctor_id');
+    }
     public function appointment()
     {
         return $this->hasOne('App\Model\Appointments', 'id', 'appointment_id');
