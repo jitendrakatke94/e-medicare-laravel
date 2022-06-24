@@ -1655,7 +1655,7 @@ class PatientController extends Controller
 
         ]);
         //->where('followup_date', '>=', now()->format('Y-m-d'))
-        $list = Followups::where('patient_id', auth()->user()->id)->with('doctor:id,first_name,middle_name,last_name,profile_photo')->with('doctorInfo:consulting_online_fee,consulting_offline_fee,emergency_fee')->where('is_cancelled', 0)->where('is_completed', 0)->with('appointment')->whereHas('appointment', function ($query) {
+        $list = Followups::where('patient_id', auth()->user()->id)->with('doctor:id,first_name,middle_name,last_name,profile_photo')->with('doctorInfo')->where('is_cancelled', 0)->where('is_completed', 0)->with('appointment')->whereHas('appointment', function ($query) {
             //$query->where('is_cancelled', 0)->where('is_completed', 1);
         })->with('clinic_address')->where('followup_date', '>=', Carbon::now()->format('Y-m-d'));;
 
