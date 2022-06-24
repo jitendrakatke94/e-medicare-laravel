@@ -124,7 +124,9 @@ class PrescriptionsController extends Controller
 
         if ($request->filled('followup_date')) {
             $appointment->followup_date = $request->followup_date;
+            $appointment->followup_one->followup_date = $request->followup_date;
         }
+        $appointment->followup_one->save();
         $appointment->save();
 
         //PrescriptionPDFJob::dispatch($prescription)->delay(now()->addMinutes(1));
