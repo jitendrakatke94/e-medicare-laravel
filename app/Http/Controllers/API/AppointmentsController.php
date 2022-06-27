@@ -685,11 +685,13 @@ class AppointmentsController extends Controller
         $mobile_number = $record['doctor']['country_code'] . $record['doctor']['mobile_number'];
         // $message = "Appointment Confirmed Hai Dr". $record['doctor']['first_name']. ",New appointment confirmed for the following details. Patient Name:" .$record['current_patient_info']['user']['first_name'] ." ". $record['current_patient_info']['user']['last_name']. "Bookingid:". $record['appointment_unique_id'] ."type:". $record['consultation_type'] . "Date:" . $record['booking_date'] ." ". $record['time'] . "Place:" . $record['clinic_address']['clinic_name'] ." ". $record['clinic_address']['street_name'] ." ". $record['clinic_address']['city_village'] ." ". $record['clinic_address']['state'] . ".";
         $doctorname = $record['doctor']['first_name'];
-        $message = $record['doctor']['first_name'] .", A new appointment has been scheduled on E-Medicare.
-        Patient Name:". $record['current_patient_info']['user']['first_name'] . ' '. $record['current_patient_info']['user']['last_name'].
+        $patient_name = $record['current_patient_info']['user']['first_name'] . ' '. $record['current_patient_info']['user']['last_name'];
+        $date_time = $record['booking_date'] . ' ' .$record['time'];
+        $message = $record['doctor']['first_name'] . ", A new appointment has been scheduled on E-Medicare.
+        Patient Name:" . $patient_name .
         "Booking ID:" . $record['appointment_unique_id'] .
         "Type:" . $record['consultation_type'] .
-        "Date:" . $record['booking_date'] . ' ' .$record['time'] .
+        "Date:" .$date_time .
         "Clinic:" . $record['clinic_address']['clinic_name'] . ".";
 
         $abc = $this->send($mobile_number, $message);
