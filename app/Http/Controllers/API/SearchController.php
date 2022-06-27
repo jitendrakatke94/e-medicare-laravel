@@ -1045,10 +1045,10 @@ class SearchController extends Controller
             'keyword' => 'required',
             'latitude' => ['required', 'regex:/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/'],
             'longitude' => ['required', 'regex:/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/'],
-            'shift' => 'in:MORNING,AFTERNOON,EVENING,NIGHT',
-            'consulting_fee_start'=> 'nullable',
-            'consulting_fee_end' => 'nullable',
-            'gender' => 'in:MALE,FEMALE,OTHERS'
+            'shift' => 'nullable|in:MORNING,AFTERNOON,EVENING,NIGHT,ANY',
+            'consulting_fee_start'=> 'required',
+            'consulting_fee_end' => 'required',
+            'gender' => 'nullable|in:MALE,FEMALE,OTHERS'
         ]);
 
         $sortBy = 'id';
@@ -1075,7 +1075,9 @@ class SearchController extends Controller
             ->where('address_type', 'CLINIC');
         })
         ->whereHas('doctor', function ($query1) use ($validatedData) {
-            $query1->where('gender', $validatedData['gender']);
+            if(!empty($validatedData['gender'])){
+                $query1->where('gender', $validatedData['gender']);
+            }
             $query1->where(function ($query2) use ($validatedData) {
                 $query2->where(function ($subquery) use ($validatedData) {
                     $subquery->whereBetween('consulting_online_fee', [$validatedData['consulting_fee_start'], $validatedData['consulting_fee_end']])
@@ -1084,7 +1086,9 @@ class SearchController extends Controller
             });
         })
         ->whereHas('doctor.timeslot', function ($query) use ($validatedData){
-            $query->where('shift', $validatedData['shift']);
+            if(!empty($validatedData['shift']) && $validatedData['shift'] != "ANY" ){
+                $query->where('shift', $validatedData['shift']);
+            }
         })
         ->get();
         return $list;
