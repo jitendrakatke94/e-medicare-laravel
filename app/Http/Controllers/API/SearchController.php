@@ -1117,7 +1117,7 @@ class SearchController extends Controller
             'recently_visited_doctors'=>[],
             'offers_for_you'=>[]
         );
-        return Auth::user();
+        return auth('api')->user();
         $doctors = DoctorPersonalInfo::with(['user', 'address'])->where('is_feature', 1)->orderBy('is_feature', 'desc')->limit(5)->get();
         
         $carbonDate = Carbon::now()->format('Y-m-d');
