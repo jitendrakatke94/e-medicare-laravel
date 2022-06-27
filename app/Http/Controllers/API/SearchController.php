@@ -1116,6 +1116,7 @@ class SearchController extends Controller
             'recently_visited_doctors'=>[],
             'offers_for_you'=>[]
         );
+        return auth()->user();
         $doctors = DoctorPersonalInfo::with(['user', 'address'])->where('is_feature', 1)->orderBy('is_feature', 'desc')->limit(5)->get();
         
         $carbonDate = Carbon::now()->format('Y-m-d');
@@ -1128,7 +1129,7 @@ class SearchController extends Controller
             ->leftjoin('users', 'users.id', '=', 'doctor_personal_infos.user_id')
             ->leftjoin('addresses', 'addresses.user_id', '=', 'doctor_personal_infos.user_id')
             ->leftjoin('appointments', 'appointments.doctor_id', '=', 'doctor_personal_infos.user_id')
-            ->where('patient_id', auth()->user()->id)
+            ->where('patient_id', auth('api')->user()->id)
             ->where('appointments.date', '>', Carbon::now()->subDays(7)->format('Y-m-d'))->where('appointments.is_cancelled', 0)
             ->groupBy('doctor_personal_infos.id')->limit(5)->get();
 
