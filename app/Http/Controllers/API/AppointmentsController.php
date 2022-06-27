@@ -693,7 +693,7 @@ class AppointmentsController extends Controller
         "Clinic:" . $record['clinic_address']['clinic_name'] . ".";
 
         $abc = $this->send($mobile_number, $message);
-        $record['abc'] = $doctorname;
+        $record['abc'] = $abc;
         //for Email Alert message
         Mail::to($record['doctor']['email'])->send(new AppointmentConfirmationToDoctor($record));
         //if payment not paid within 10 minutes delete this record
