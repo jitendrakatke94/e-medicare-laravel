@@ -426,9 +426,6 @@ Route::group(['prefix' => 'doctor', 'middleware' => ['role:doctor', 'auth:api']]
     Route::get('workinghours', 'API\DoctorWorkingHoursController@index');
     Route::post('workinghours', 'API\DoctorWorkingHoursController@store');
 });
-Route::get('test', function(){
-    return Followups::where('patient_id', 356)->with('doctor:id,first_name,middle_name,last_name,profile_photo')->with('doctorInfo')->paginate(Followups::$page);
-});
 Route::group(['prefix' => 'oauth/pharmacy'], function () {
 
     Route::post('basicinfo', 'API\PharmacyRegistrationController@basicInfo')->name('pharmacy.basicinfo');

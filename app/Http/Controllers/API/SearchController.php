@@ -1052,7 +1052,7 @@ class SearchController extends Controller
         $distance_in_km = 35;
 
 
-        $list = User::where(DB::raw("CONCAT(`first_name`, ' ', `middle_name`, ' ', `last_name`)"), 'LIKE', "%".$validatedData['keyword']."%")->where('user_type', 'DOCTOR')->with('address', 'doctor', 'doctor.specialization')
+        $list = User::where(DB::raw("CONCAT(`first_name`, ' ', `middle_name`, ' ', `last_name`)"), 'LIKE', "%".$validatedData['keyword']."%")->where('user_type', 'DOCTOR')->with('address', 'doctor', 'doctor.timeslot','doctor.specialization')
         ->orWhereHas('doctor.specialization', function($query) use($validatedData) {
             $query->where('name', $validatedData['keyword']);
         });
