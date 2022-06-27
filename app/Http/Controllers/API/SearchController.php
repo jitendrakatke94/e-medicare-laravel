@@ -19,6 +19,7 @@ use App\Model\Offers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\User;
+use Illuminate\Support\Facades\Auth;
 
 class SearchController extends Controller
 {
@@ -1116,7 +1117,7 @@ class SearchController extends Controller
             'recently_visited_doctors'=>[],
             'offers_for_you'=>[]
         );
-        return auth()->user();
+        return Auth::user();
         $doctors = DoctorPersonalInfo::with(['user', 'address'])->where('is_feature', 1)->orderBy('is_feature', 'desc')->limit(5)->get();
         
         $carbonDate = Carbon::now()->format('Y-m-d');
