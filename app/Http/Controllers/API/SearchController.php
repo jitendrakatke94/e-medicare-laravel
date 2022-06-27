@@ -1128,6 +1128,7 @@ class SearchController extends Controller
             ->leftjoin('users', 'users.id', '=', 'doctor_personal_infos.user_id')
             ->leftjoin('addresses', 'addresses.user_id', '=', 'doctor_personal_infos.user_id')
             ->leftjoin('appointments', 'appointments.doctor_id', '=', 'doctor_personal_infos.user_id')
+            ->where('patient_id', auth()->user()->id)
             ->where('appointments.date', '>', Carbon::now()->subDays(7)->format('Y-m-d'))->where('appointments.is_cancelled', 0)
             ->groupBy('doctor_personal_infos.id')->limit(5)->get();
 
