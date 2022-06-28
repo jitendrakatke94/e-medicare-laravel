@@ -1100,13 +1100,13 @@ class PatientController extends Controller
             $filter = $validatedData['filter'];
         }
         $sortBy = 'time'; //id
-        $orderBy = 'desc';
+        $orderBy = 'asc';
         if ($request->filled('sortBy')) {
             $sortBy = $validatedData['sortBy'];
         }
-        if ($request->filled('orderBy')) {
-            $orderBy = $validatedData['orderBy'];
-        }
+        // if ($request->filled('orderBy')) {
+        //     $orderBy = $validatedData['orderBy'];
+        // }
         $record = Appointments::where('patient_id', auth()->user()->id)->with('doctor:id,first_name,middle_name,last_name,profile_photo')->with('clinic_address')->with('prescription')->where(function ($query) use ($filter, $request) {
             
             if (array_key_exists('upcoming', $filter) && $filter['upcoming'] == 1) {
