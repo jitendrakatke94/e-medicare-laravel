@@ -1055,16 +1055,12 @@ class SearchController extends Controller
         $sortBy = 'id';
         $orderBy = 'asc';
         $distance_in_km = 35;
-
-        $list = User::where(DB::raw("CONCAT(`first_name`, ' ', `middle_name`, ' ', `last_name`)"), 'LIKE', "%".$validatedData['keyword']."%")
-        ->where('user_type', 'DOCTOR')
+        //where(DB::raw("CONCAT(`first_name`, ' ', `middle_name`, ' ', `last_name`)"), 'LIKE', "%".$validatedData['keyword']."%")
+        $list = User::where('user_type', 'DOCTOR')
         ->with('address', 'doctor', 'doctor.specialization')
-        // ->orWhere(function($query) use($validatedData){
-        //     $query->whereHas('doctor.specialization', function($sub_query) use($validatedData) {
-        //         $sub_query->where('name', $validatedData['keyword']);
-        //     });
-        // })
-        ->whereHas('address', function($query) use($validatedData, $distance_in_km) {
+        ->whereHas('doctor.specialization', function($query) use($validatedData) {
+            $query->where('name', $validatedData['keyword']);
+        })->whereHas('address', function($query) use($validatedData, $distance_in_km) {
             $query->selectRaw("id,user_id,street_name,city_village,district,state,country,pincode,address_type,
             ( 6371 * acos( cos( radians(?) ) *
               cos( radians( latitude ) )
@@ -1074,8 +1070,7 @@ class SearchController extends Controller
             ) AS distance", [$validatedData['latitude'], $validatedData['longitude'], $validatedData['latitude']])
             ->having("distance", "<", $distance_in_km)
             ->where('address_type', 'CLINIC');
-        })
-        ->whereHas('doctor', function ($query1) use ($validatedData) {
+        })->whereHas('doctor', function ($query1) use ($validatedData) {
             if(!empty($validatedData['gender'])){
                 $query1->where('gender', $validatedData['gender']);
             }
@@ -1085,14 +1080,11 @@ class SearchController extends Controller
                     ->orWhereBetween('consulting_offline_fee', [$validatedData['consulting_fee_start'], $validatedData['consulting_fee_end']]);
                 });
             });
-        })
-        ->whereHas('doctor.timeslot', function ($query) use ($validatedData){
+        })->whereHas('doctor.timeslot', function ($query) use ($validatedData){
             if(!empty($validatedData['shift']) && $validatedData['shift'] != "ANY" ){
                 $query->where('shift', $validatedData['shift']);
             }
-        })
-        ->get();
-        return $list;
+        })->get();
         
         $record = [];
         foreach($list as $object){
