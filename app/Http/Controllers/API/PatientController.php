@@ -1110,10 +1110,10 @@ class PatientController extends Controller
         $record = Appointments::where('patient_id', auth()->user()->id)->with('doctor:id,first_name,middle_name,last_name,profile_photo')->with('clinic_address')->with('prescription')->where(function ($query) use ($filter, $request) {
             
             if (array_key_exists('upcoming', $filter) && $filter['upcoming'] == 1) {
-                // $query->where('date', '>', Carbon::now()->format('Y-m-d'))
-                // ->orWhere(DB::raw("CONCAT(date,' ', start_time)"), '>=' , Carbon::now()->format('Y-m-d H:i:s'));
+                $query->where('date', '>', Carbon::now()->format('Y-m-d'))
+                ->orWhere(DB::raw("CONCAT(date,' ', start_time)"), '>=' , Carbon::now()->format('Y-m-d H:i:s'))
                 // where('date', '>=', Carbon::now()->format('Y-m-d'));
-                $query->where('is_completed', 0);
+                ->where('is_completed', 0);
             }
             if (array_key_exists('completed', $filter) && $filter['completed'] == 1) {
                 $query->where('is_completed', 1);
