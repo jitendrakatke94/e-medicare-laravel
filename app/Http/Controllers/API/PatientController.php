@@ -1100,7 +1100,7 @@ class PatientController extends Controller
             $filter = $validatedData['filter'];
         }
         $sortBy = 'time'; //id
-        $orderBy = 'asc';
+        $orderBy = 'desc';
         if ($request->filled('sortBy')) {
             $sortBy = $validatedData['sortBy'];
         }
