@@ -706,7 +706,7 @@ class AppointmentsController extends Controller
         
         $abc = $this->send($mobile_number, $message);
         $record['abc'] = $abc;
-        $record['abd'] = $message;
+        $record['abd'] = rawurlencode($message);
         //for Email Alert message
         Mail::to($record['doctor']['email'])->send(new AppointmentConfirmationToDoctor($record));
         //if payment not paid within 10 minutes delete this record
