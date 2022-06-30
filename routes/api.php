@@ -38,7 +38,7 @@ Route::group(['prefix' => 'guest'], function () {
     Route::post('search/doctorSearch', 'API\SearchController@doctorSearch');
 
     Route::get('topLocations', 'API\SearchController@getTopLocations');
-    Route::get('loadMobileApi', 'API\SearchController@topDoctorsAndOffersList')->middleware('auth:api');
+    Route::get('loadMobileApi', 'API\SearchController@topDoctorsAndOffersList');
 });
 # No auth required.
 Route::get('search/medicine', 'API\Admin\MedicineController@search');
