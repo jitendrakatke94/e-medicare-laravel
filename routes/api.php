@@ -38,6 +38,7 @@ Route::group(['prefix' => 'guest'], function () {
     Route::post('search/doctorSearch', 'API\SearchController@doctorSearch');
 
     Route::get('topLocations', 'API\SearchController@getTopLocations');
+    Route::get('loadMobileApi', 'API\SearchController@topDoctorsAndOffersList')->middleware('auth:api');
 });
 # No auth required.
 Route::get('search/medicine', 'API\Admin\MedicineController@search');
@@ -116,7 +117,6 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::delete('comments/{id}', 'API\CommentsController@destroy');
 
     Route::post('change/username', 'API\UserController@changeUserName');
-    Route::get('loadMobileApi', 'API\SearchController@topDoctorsAndOffersList');
 });
 
 Route::get('admin/specialization', 'API\Admin\SpecializationController@index');
