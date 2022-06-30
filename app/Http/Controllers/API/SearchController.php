@@ -1109,178 +1109,133 @@ class SearchController extends Controller
             'recently_visited_doctors'=>[],
             'offers_for_you'=>[]
         );
+        if(auth('api')->user()){
+            try {
+                $doctors = DoctorPersonalInfo::with(['user', 'address'])->where('is_feature', 1)->orderBy('is_feature', 'desc')->limit(5)->get();
         
-        $doctors = DoctorPersonalInfo::with(['user', 'address'])->where('is_feature', 1)->orderBy('is_feature', 'desc')->limit(5)->get();
-        
-        $carbonDate = Carbon::now()->format('Y-m-d');
-        $carbonDateTime = Carbon::now()->format('Y-m-d H:i:s');
-        $doctors_list = DoctorPersonalInfo::with(['user', 'address'])->whereHas('address', function($query){
-            $query->where('address_type', 'CLINIC');
-        })->whereHas('user', function($query) {$query->where('is_active', 1);})->get();
-        $recently_visited_doctors = [];
-        $recently_visited_doctrs = DB::table('doctor_personal_infos')
-            ->leftjoin('users', 'users.id', '=', 'doctor_personal_infos.user_id')
-            ->leftjoin('addresses', 'addresses.user_id', '=', 'doctor_personal_infos.user_id')
-            ->leftjoin('appointments', 'appointments.doctor_id', '=', 'doctor_personal_infos.user_id')
-            ->leftjoin('doctor_personal_info_specializations', 'doctor_personal_info_specializations.doctor_personal_info_id', '=', 'doctor_personal_infos.id')
-            ->leftjoin('specializations', 'specializations.id', 'doctor_personal_info_specializations.specializations_id')
-            ->where('patient_id', auth('api')->user()->id)
-            ->where('appointments.date', '>', Carbon::now()->subDays(7)->format('Y-m-d'))->where('appointments.is_cancelled', 0)
-            ->groupBy('doctor_personal_infos.id')->limit(5)->get();
-        
-        foreach($recently_visited_doctrs as $doctor) {
-            if ($doctor->profile_photo != NULL) {
+                $carbonDate = Carbon::now()->format('Y-m-d');
+                $carbonDateTime = Carbon::now()->format('Y-m-d H:i:s');
+                $doctors_list = DoctorPersonalInfo::with(['user', 'address'])->whereHas('address', function($query){
+                    $query->where('address_type', 'CLINIC');
+                })->whereHas('user', function($query) {$query->where('is_active', 1);})->get();
+                $recently_visited_doctors = [];
+                $recently_visited_doctrs = DB::table('doctor_personal_infos')
+                    ->leftjoin('users', 'users.id', '=', 'doctor_personal_infos.user_id')
+                    ->leftjoin('addresses', 'addresses.user_id', '=', 'doctor_personal_infos.user_id')
+                    ->leftjoin('appointments', 'appointments.doctor_id', '=', 'doctor_personal_infos.user_id')
+                    ->leftjoin('doctor_personal_info_specializations', 'doctor_personal_info_specializations.doctor_personal_info_id', '=', 'doctor_personal_infos.id')
+                    ->leftjoin('specializations', 'specializations.id', 'doctor_personal_info_specializations.specializations_id')
+                    ->where('patient_id', auth('api')->user()->id)
+                    ->where('appointments.date', '>', Carbon::now()->subDays(7)->format('Y-m-d'))->where('appointments.is_cancelled', 0)
+                    ->groupBy('doctor_personal_infos.id')->limit(5)->get();
                 
-                $path = storage_path() . "/app/" . $doctor->profile_photo;
-                if (file_exists($path)) {
-                    $path = Storage::url($doctor->profile_photo);
+                foreach($recently_visited_doctrs as $doctor) {
+                    if ($doctor->profile_photo != NULL) {
+                        
+                        $path = storage_path() . "/app/" . $doctor->profile_photo;
+                        if (file_exists($path)) {
+                            $path = Storage::url($doctor->profile_photo);
+                        }
+                    }
+                    $recently_visited_doctors[] = array(
+                        'id'=>$doctor->id,
+                        'user_id'=>$doctor->user_id,
+                        'doctor_unique_id'=>$doctor->doctor_unique_id,
+                        'title'=>$doctor->title,
+                        'gender'=>$doctor->gender,
+                        'date_of_birth'=>$doctor->date_of_birth,
+                        'age'=>$doctor->age,
+                        'qualification'=>$doctor->qualification,
+                        'educations'=>$doctor->educations,
+                        'years_of_experience'=>$doctor->years_of_experience,
+                        'alt_country_code'=>$doctor->alt_country_code,
+                        'alt_mobile_number'=>$doctor->alt_mobile_number,
+                        'clinic_name'=>$doctor->clinic_name,
+                        'career_profile'=>$doctor->career_profile,
+                        'education_training'=>$doctor->education_training,
+                        'experience'=>$doctor->experience,
+                        'is_feature'=>$doctor->is_feature,
+                        'description'=>$doctor->description,
+                        'area_of_expertise'=>$doctor->area_of_expertise,
+                        'clinical_focus'=>$doctor->clinical_focus,
+                        'awards_achievements'=>$doctor->awards_achievements,
+                        'memberships'=>$doctor->memberships,
+                        'appointment_type_online'=>$doctor->appointment_type_online,
+                        'appointment_type_offline'=>$doctor->appointment_type_offline,
+                        'consulting_online_fee'=>$doctor->consulting_online_fee,
+                        'consulting_offline_fee'=>$doctor->consulting_offline_fee,
+                        'emergency_fee'=>$doctor->emergency_fee,
+                        'emergency_appointment'=>$doctor->emergency_appointment,
+                        'available_from_time'=>$doctor->available_from_time,
+                        'available_to_time'=>$doctor->available_to_time,
+                        'service'=>$doctor->service,
+                        'no_of_followup'=>$doctor->no_of_followup,
+                        'followups_after'=>$doctor->followups_after,
+                        'cancel_time_period'=>$doctor->cancel_time_period,
+                        'reschedule_time_period'=>$doctor->reschedule_time_period,
+                        'payout_period'=>$doctor->payout_period,
+                        'registration_number'=>$doctor->registration_number,
+                        'time_intravel'=>$doctor->time_intravel,
+                        'created_by'=>$doctor->created_by,
+                        'updated_by'=>$doctor->updated_by,
+                        'user'=>array(
+                            'first_name'=>$doctor->first_name,
+                            'middle_name'=>$doctor->middle_name,
+                            'last_name'=>$doctor->last_name,
+                            'email'=>$doctor->email,
+                            'username'=>$doctor->username,
+                            'country_code'=>$doctor->country_code,
+                            'mobile_number'=>$doctor->mobile_number,
+                            'profile_photo'=>asset($path),
+                        ),
+                        'address'=>array(
+                            'user_id'=>$doctor->user_id,
+                            'address_type'=>$doctor->address_type,
+                            'street_name'=>$doctor->street_name,
+                            'city_village'=>$doctor->city_village,
+                            'district'=>$doctor->district,
+                            'state'=>$doctor->state,
+                            'country'=>$doctor->country,
+                            'pincode'=>$doctor->pincode,
+                            'country_code'=>$doctor->country_code,
+                            'contact_number'=>$doctor->contact_number,
+                            'clinic_name'=>$doctor->clinic_name,
+                        ),
+                        'appointment'=>array(
+                            'user_id'=>$doctor->user_id,
+                            'doctor_id'=>$doctor->doctor_id,
+                            'patient_id'=>$doctor->patient_id,
+                            'address_id'=>$doctor->address_id,
+                            'appointment_unique_id'=>$doctor->appointment_unique_id,
+                            'doctor_time_slots_id'=>$doctor->doctor_time_slots_id,
+                            'date'=>$doctor->date,
+                            'time'=>$doctor->time,
+                            'start_time'=>$doctor->start_time,
+                            'end_time'=>$doctor->end_time,
+                            'consultation_type'=>$doctor->consultation_type,
+                        ),
+                        'specialization' => array(
+                            'id'=>$doctor->specializations_id,
+                            'name'=>$doctor->name
+                        )
+                    );
                 }
+
+                $offers = Offers::where('created_date', '<=', Carbon::now()->format('Y-m-d'))->where('expiry_date', '>=', Carbon::now()->format('Y-m-d'))->get();
+
+                $data['top_doctors'] =$doctors;
+                $data['recently_visited_doctors'] = $recently_visited_doctors;
+                $data['offers_for_you'] = $offers;
+                    
+                return response()->json($data, 200);
+            }catch (\Exception $exception) {
+                return new ErrorMessage('You are not autherised', 401);
             }
-            $recently_visited_doctors[] = array(
-                'id'=>$doctor->id,
-                'user_id'=>$doctor->user_id,
-                'doctor_unique_id'=>$doctor->doctor_unique_id,
-                'title'=>$doctor->title,
-                'gender'=>$doctor->gender,
-                'date_of_birth'=>$doctor->date_of_birth,
-                'age'=>$doctor->age,
-                'qualification'=>$doctor->qualification,
-                'educations'=>$doctor->educations,
-                'years_of_experience'=>$doctor->years_of_experience,
-                'alt_country_code'=>$doctor->alt_country_code,
-                'alt_mobile_number'=>$doctor->alt_mobile_number,
-                'clinic_name'=>$doctor->clinic_name,
-                'career_profile'=>$doctor->career_profile,
-                'education_training'=>$doctor->education_training,
-                'experience'=>$doctor->experience,
-                'is_feature'=>$doctor->is_feature,
-                'description'=>$doctor->description,
-                'area_of_expertise'=>$doctor->area_of_expertise,
-                'clinical_focus'=>$doctor->clinical_focus,
-                'awards_achievements'=>$doctor->awards_achievements,
-                'memberships'=>$doctor->memberships,
-                'appointment_type_online'=>$doctor->appointment_type_online,
-                'appointment_type_offline'=>$doctor->appointment_type_offline,
-                'consulting_online_fee'=>$doctor->consulting_online_fee,
-                'consulting_offline_fee'=>$doctor->consulting_offline_fee,
-                'emergency_fee'=>$doctor->emergency_fee,
-                'emergency_appointment'=>$doctor->emergency_appointment,
-                'available_from_time'=>$doctor->available_from_time,
-                'available_to_time'=>$doctor->available_to_time,
-                'service'=>$doctor->service,
-                'no_of_followup'=>$doctor->no_of_followup,
-                'followups_after'=>$doctor->followups_after,
-                'cancel_time_period'=>$doctor->cancel_time_period,
-                'reschedule_time_period'=>$doctor->reschedule_time_period,
-                'payout_period'=>$doctor->payout_period,
-                'registration_number'=>$doctor->registration_number,
-                'time_intravel'=>$doctor->time_intravel,
-                'created_by'=>$doctor->created_by,
-                'updated_by'=>$doctor->updated_by,
-                'user'=>array(
-                    'first_name'=>$doctor->first_name,
-                    'middle_name'=>$doctor->middle_name,
-                    'last_name'=>$doctor->last_name,
-                    'email'=>$doctor->email,
-                    'username'=>$doctor->username,
-                    'country_code'=>$doctor->country_code,
-                    'mobile_number'=>$doctor->mobile_number,
-                    'profile_photo'=>asset($path),
-                ),
-                'address'=>array(
-                    'user_id'=>$doctor->user_id,
-                    'address_type'=>$doctor->address_type,
-                    'street_name'=>$doctor->street_name,
-                    'city_village'=>$doctor->city_village,
-                    'district'=>$doctor->district,
-                    'state'=>$doctor->state,
-                    'country'=>$doctor->country,
-                    'pincode'=>$doctor->pincode,
-                    'country_code'=>$doctor->country_code,
-                    'contact_number'=>$doctor->contact_number,
-                    'clinic_name'=>$doctor->clinic_name,
-                ),
-                'appointment'=>array(
-                    'user_id'=>$doctor->user_id,
-                    'doctor_id'=>$doctor->doctor_id,
-                    'patient_id'=>$doctor->patient_id,
-                    'address_id'=>$doctor->address_id,
-                    'appointment_unique_id'=>$doctor->appointment_unique_id,
-                    'doctor_time_slots_id'=>$doctor->doctor_time_slots_id,
-                    'date'=>$doctor->date,
-                    'time'=>$doctor->time,
-                    'start_time'=>$doctor->start_time,
-                    'end_time'=>$doctor->end_time,
-                    'consultation_type'=>$doctor->consultation_type,
-                ),
-                'specialization' => array(
-                    'id'=>$doctor->specializations_id,
-                    'name'=>$doctor->name
-                )
-                );
+        }else{
+            return new ErrorMessage('You are not autherised', 401);
         }
-
-        // foreach($doctors_list as $doctr){
-        //     $doctor = DoctorPersonalInfo::with(['user', 'address'])->whereHas('address', function($query){
-        //         $query->where('address_type', 'CLINIC');
-        //     })
-        //     ->with(['appointments'=>function($query) use($doctr) {
-        //         if($query){
-        //             $query->where('doctor_id', $doctr->user_id)->where('date', '>', Carbon::now()->subDays(7)->format('Y-m-d'))->where('is_cancelled', 0);
-        //         }
-        //     }])
-        //     ->whereHas('appointments', function($query) use($doctr){
-        //         if($query){
-        //             $query->where('doctor_id', $doctr->user_id)->where('date', '>', Carbon::now()->subDays(7)->format('Y-m-d'))->where('is_cancelled', 0);
-        //         }
-        //     })
-        //     ->where('user_id', $doctr->user_id)->first();
-        //     $recently_visited_doctors[] = $doctor;
-        // }
-        // $recently_visited_doctors = DoctorPersonalInfo::with(['user', 'address'])->whereHas('address', function($query){
-        //     $query->where('address_type', 'CLINIC');
-        // })->with(['appointments'=>function($query) use($doctors_list){
-        //     foreach($doctors_list as $doctr){
-        //         $query->where('doctor_id', $doctr->user_id);
-        //     }
-        //     $query->where('date', '>', Carbon::now()->subDays(1)->format('Y-m-d'))->where('is_cancelled', 0);
-        // }])
-        // ->whereHas('appointments', function($query) use($doctors_list){
-        //     foreach($doctors_list as $doctr){
-        //         $query->where('doctor_id', $doctr->user_id);
-        //     }
-        //     $query->where('date', '>', Carbon::now()->subDays(1)->format('Y-m-d'))->where('is_cancelled', 0);
-        // })
-        // ->limit(5)->get();
-
-        // ->whereHas('appointments', function($query) use ($carbonDate, $carbonDateTime) {
-        //     // $query->where(function ($que) {
-        //     //     $que->where('date', '<', Carbon::now()->format('Y-m-d'))
-        //     //     ->orWhere(DB::raw("CONCAT(date,' ', start_time)"), '<=' , Carbon::now()->format('Y-m-d H:i:s'));
-        //         $query->where('is_cancelled', 0);
-        //         // ->orWhere(DB::raw("CONCAT(date,' ', end_time)"), '<=' , $carbonDateTime);
-            
-        //     // $query->whereNotNull('date')->whereNotNull('end_time')->whereNotNull('is_cancelled')
-        //     // ->where('date', '<', Carbon::now()->subDays(4)->format('Y-m-d'))->where('is_cancelled', 0)
-        //     // ->orWhere(DB::raw("CONCAT(date,' ', end_time)"), '<=' , Carbon::now()->format('Y-m-d H:i:s'));
-        // })
-        // ->get();
-
-        // $recently_visited_doctors = DB::table('doctor_personal_infos')
-        //     ->leftjoin('users', 'users.id', '=', 'doctor_personal_infos.user_id')
-        //     ->leftjoin('addresses', 'addresses.user_id', '=', 'doctor_personal_infos.user_id')
-        //     ->leftjoin('appointments', 'appointments.doctor_id', '=', 'doctor_personal_infos.user_id')
-        //     ->where('date', '<', Carbon::now()->subDays(4)->format('Y-m-d'))->where('is_cancelled', 0)
-        //     ->orWhere(DB::raw("CONCAT(date,' ', end_time)"), '<=' , Carbon::now()->format('Y-m-d H:i:s'))->groupBy('doctor_personal_infos.id')->get();
-
-        // $recently_visited_doctors = DoctorPersonalInfo::with(['user', 'address'])->get();
-        $offers = Offers::where('created_date', '<=', Carbon::now()->format('Y-m-d'))->where('expiry_date', '>=', Carbon::now()->format('Y-m-d'))->get();
-
-        $data['top_doctors'] =$doctors;
-        $data['recently_visited_doctors'] = $recently_visited_doctors;
-        $data['offers_for_you'] = $offers;
-            
-        return response()->json($data, 200);
+        
+        
     }
 
     public function getTopLocations(Request $request)
