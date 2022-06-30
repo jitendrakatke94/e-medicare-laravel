@@ -209,7 +209,7 @@ class SearchController extends Controller
                           ) + sin( radians(?) ) *
                           sin( radians( latitude ) ) )
                         ) AS distance", [$latitude,$longitude,$latitude])
-                        ->having("distance", "<", $distance_in_km)
+                        ->having("distance", "<=", $distance_in_km)
                         ->where('address_type', 'CLINIC');
                         // if (array_key_exists('street_name', $location) && !empty($location['street_name'])) {
                         //     $query->where('street_name', 'like', '%' . $location['street_name'] . '%');
