@@ -652,17 +652,17 @@ class AppointmentsController extends Controller
 
             $tax = TaxService::where('name', 'Doctor offline consultation')->first();
             $consulting_fee = $doctor->consulting_offline_fee;
-            $commission = $userCommissions->in_clinic;
+            $commission = $userCommissions && $userCommissions->in_clinic ? $userCommissions->in_clinic : 0.00;
         } else if ($request->consultation_type == 'ONLINE') {
 
             $tax = TaxService::where('name', 'Doctor online consultation')->first();
             $consulting_fee = $doctor->consulting_online_fee;
-            $commission = $userCommissions->online;
+            $commission = $userCommissions && $userCommissions->online ? $userCommissions->online : 0.00;
         } else if ($request->consultation_type == 'EMERGENCY') {
 
             $tax = TaxService::where('name', 'Doctor emergency consultation')->first();
             $consulting_fee = $doctor->emergency_fee;
-            $commission = $userCommissions->emergency;
+            $commission = $userCommissions && $userCommissions->emergency ? $userCommissions->emergency : 0.00;
         }
         if ($tax) {
             $tax_percent = $tax->tax_percent;
