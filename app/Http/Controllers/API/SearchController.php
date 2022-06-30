@@ -1119,7 +1119,7 @@ class SearchController extends Controller
         })->whereHas('user', function($query) {$query->where('is_active', 1);})->get();
         $recently_visited_doctors = [];
         $recently_visited_doctrs = DB::table('doctor_personal_infos')
-            ->join('users', 'users.id', '=', 'doctor_personal_infos.user_id')
+            ->leftjoin('users', 'users.id', '=', 'doctor_personal_infos.user_id')
             ->leftjoin('addresses', 'addresses.user_id', '=', 'doctor_personal_infos.user_id')
             ->leftjoin('appointments', 'appointments.doctor_id', '=', 'doctor_personal_infos.user_id')
             ->leftjoin('doctor_personal_info_specializations', 'doctor_personal_info_specializations.doctor_personal_info_id', '=', 'doctor_personal_infos.id')
