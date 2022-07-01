@@ -1111,7 +1111,8 @@ class SearchController extends Controller
             $query1->where(function ($query2) use ($validatedData) {
                 $query2->where(function ($subquery) use ($validatedData) {
                     $subquery->whereBetween('consulting_online_fee', [$validatedData['consulting_fee_start'], $validatedData['consulting_fee_end']])
-                    ->orWhereBetween('consulting_offline_fee', [$validatedData['consulting_fee_start'], $validatedData['consulting_fee_end']]);
+                    ->orWhereBetween('consulting_offline_fee', [$validatedData['consulting_fee_start'], $validatedData['consulting_fee_end']])
+                    ->orWhereBetween('emergency_fee', [$validatedData['consulting_fee_start'], $validatedData['consulting_fee_end']]);
                 });
             });
         });
