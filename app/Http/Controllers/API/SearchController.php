@@ -965,7 +965,7 @@ class SearchController extends Controller
      */
     public function getDoctorAvailableTimeslots($id, Request $request)
     {
-
+        return Carbon::now()->format('Y-m-d H:i:s');
         $validData = $request->validate([
             'date' => 'required|date_format:Y-m-d',
             'timezone' => 'nullable|timezone'
