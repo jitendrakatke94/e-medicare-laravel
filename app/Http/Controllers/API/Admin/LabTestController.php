@@ -187,6 +187,7 @@ class LabTestController extends Controller
         }
         $validatedData['updated_by'] = auth()->user()->id;
         $labTest->update($validatedData);
+        return $labTest;
         return new SuccessMessage('Record updated successfully.');
     }
 
