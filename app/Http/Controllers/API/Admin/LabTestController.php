@@ -173,7 +173,6 @@ class LabTestController extends Controller
             'currency_code' => 'nullable|string',
             'short_disc'=> 'nullable|string'
         ]);
-        return $validatedData;
         try {
             $labTest = LabTest::findOrFail($id);
         } catch (\Exception $exception) {
@@ -188,7 +187,6 @@ class LabTestController extends Controller
         }
         $validatedData['updated_by'] = auth()->user()->id;
         $labTest->update($validatedData);
-        return $labTest;
         return new SuccessMessage('Record updated successfully.');
     }
 
