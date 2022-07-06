@@ -173,6 +173,7 @@ class LabTestController extends Controller
             'currency_code' => 'nullable|string',
             'short_disc'=> 'nullable|string'
         ]);
+        return $validatedData;
         try {
             $labTest = LabTest::findOrFail($id);
         } catch (\Exception $exception) {
