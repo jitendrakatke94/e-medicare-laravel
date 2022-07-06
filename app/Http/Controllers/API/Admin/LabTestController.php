@@ -117,7 +117,7 @@ class LabTestController extends Controller
             'code' => 'nullable|string',
             'price' => 'required|numeric',
             'currency_code' => 'nullable|string',
-            'short_disc'=> 'nullable|text'
+            'short_disc'=> 'nullable|string'
         ]);
 
         if ($request->file('image')) {
@@ -171,7 +171,7 @@ class LabTestController extends Controller
             'image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
             'code' => 'nullable|string',
             'currency_code' => 'nullable|string',
-            'short_disc'=> 'nullable|text'
+            'short_disc'=> 'nullable|string'
         ]);
         try {
             $labTest = LabTest::findOrFail($id);
