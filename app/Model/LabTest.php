@@ -28,7 +28,7 @@ class LabTest extends Model
         'created_by',
         'updated_by',
         'deactivated_by',
-
+        'short_disc'
     ];
 
     /**
