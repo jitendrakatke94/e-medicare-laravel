@@ -764,7 +764,7 @@ class PayoutController extends Controller
             'type' => 'required|in:MED,LAB,DOC',
             'payout_id' => 'required|integer|exists:payouts,id'
         ]);
-        return $data;
+
         $list = Payout::where('id', $data['payout_id'])->where('type', $data['type'])->whereHas('payout_history')->with('payout_history')->orderBy('id', 'desc')->get();
 
         if ($list->count() > 0) {
