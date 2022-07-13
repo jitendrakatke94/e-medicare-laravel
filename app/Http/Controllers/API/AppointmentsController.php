@@ -697,12 +697,7 @@ class AppointmentsController extends Controller
         // "Date:" . $date_time .
         // "Clinic:" . $record['clinic_address']['clinic_name'] . ".";
 
-        $message = "$doctorname, A new appointment has been scheduled on E-Medicare.
-        Patient Name: $patient_name
-        Booking ID: $appoitmentId
-        Type: $appointmentType
-        Date: $date_time
-        Clinic: $clinic_name";
+        $message = "$doctorname, A new appointment has been scheduled on E-Medicare.\nPatient Name: $patient_name\nBooking ID: $appoitmentId\nType: $appointmentType\nDate: $date_time\nClinic: $clinic_name";
         
         $abc = $this->send($mobile_number, $message);
         $record['abc'] = $abc;
