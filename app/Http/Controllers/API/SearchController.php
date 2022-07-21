@@ -1278,6 +1278,7 @@ class SearchController extends Controller
         $data = array(
             'data' =>[]
         );
+        
         $addressList = Address::select('*')->havingRaw('COUNT(state) > 5')->groupBy('state')->limit(5)->get();
 
         if ($addressList->count() > 0) {
